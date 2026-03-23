@@ -1,72 +1,72 @@
-# 📊 Weka Visualizer: Advanced ML Dashboard
+# 📊 Weka Visualizer: Advanced ML Analysis & Dashboard
 
-Weka Visualizer es una solución de alto rendimiento diseñada para la transformación inmediata de reportes de texto plano de **Weka Machine Learning** en dashboards interactivos de alta fidelidad. 
-
-Este motor elimina la fricción operativa al interpretar métricas densas, permitiendo un análisis granular del rendimiento de modelos predictivos mediante una interfaz moderna y reactiva.
+**Weka Visualizer** es una herramienta de visualización reactiva diseñada para facilitar la interpretación de reportes generados por **Weka Machine Learning**. Convierte los outputs de texto plano en dashboards interactivos y visuales, proporcionando un análisis profundo y eficiente del rendimiento de modelos predictivos.
 
 ---
 
-## ✨ Características de Ingeniería
+## 🧐 Propósito del Proyecto
 
-*   **Smart Parsing Engine:** Extracción automatizada de métricas mediante expresiones regulares (Regex) optimizadas para el output estándar de Weka.
-*   **Visualización Dinámica:** Generación de gráficas interactivas para *Precision*, *Recall*, *F-Measure* y *Accuracy*.
-*   **Matriz de Confusión Reactiva:** Mapa de calor (Heatmap) integral para la identificación visual de sesgos y errores de clasificación.
-*   **Análisis Train vs. Test:** Auditoría comparativa dedicada para la detección temprana de anomalías como el *overfitting*.
-*   **Enterprise Export:** Generación de reportes listos para documentación técnica de grado profesional.
+El objetivo principal de esta aplicación es servir como una capa de visualización para los resultados de minería de datos obtenidos en Weka. Al procesar el texto del `Classifier Output`, el visualizador extrae métricas críticas y genera representaciones gráficas que permiten identificar rápidamente fortalezas y debilidades en los modelos de clasificación.
 
 ---
 
-## 🚀 Arquitectura y Stack Tecnológico
+## ✨ Características Técnicas
 
-La aplicación ha sido diseñada bajo principios de escalabilidad y rendimiento:
-
-*   **Core Logic:** TypeScript con tipado estricto para garantizar la integridad de los datos procesados.
-*   **Framework UI:** Vite + React (Arquitectura de componentes modulares).
-*   **Data Visualization:** Chart.js / Recharts para renderizado ligero en el lado del cliente.
-*   **Estilos:** Vanilla CSS con Design Tokens optimizados para *Dark Mode* y accesibilidad (fluid typography).
-*   **Deployment:** Optimizado para despliegues rápidos en entornos Vercel/Netlify.
+*   **⚡ Motor de Parsing Basado en RegEx**: Algoritmo optimizado para extraer automáticamente métricas y estructuras de datos desde el output estándar de Weka (incluyendo soporte para `InputMappedClassifier`).
+*   **🔥 Matriz de Confusión Interactiva**: Mapa de calor (Heatmap) que permite identificar visualmente errores de clasificación y sesgos en el modelo.
+*   **📈 Visualización de Métricas de Rendimiento**: Dashboards dinámicos para métricas de clasificación: *Precision*, *Recall*, *F-Measure*, *MCC*, *ROC Area* y *PRC Area*.
+*   **🔄 Análisis de Overfitting**: Herramientas integradas para comparar resultados entre conjuntos de entrenamiento y prueba.
+*   **📂 Exportación de Datos**: Capacidad para exportar análisis detallados a formato Excel y capturar visualizaciones para reportes académicos o técnicos.
 
 ---
 
-## 🛠️ Guía de Inicio Rápido
+## 🛠️ Stack Tecnológico
 
-### Instalación de Dependencias
+La aplicación ha sido desarrollada utilizando tecnologías modernas para garantizar un rendimiento óptimo y una experiencia de usuario fluida:
 
-```bash
-# Instalación con Bun o NPM
-bun install
-# o
-npm install
+*   **Frontend**: [React 18](https://react.dev/) + [Vite](https://vitejs.dev/)
+*   **Lenguaje**: [TypeScript](https://www.typescriptlang.org/) (Tipado estricto)
+*   **Visualización de Datos**: [Recharts](https://recharts.org/)
+*   **Estilos**: [Tailwind CSS 4.0](https://tailwindcss.com/)
+*   **Iconografía**: [Lucide React](https://lucide.dev/)
+
+---
+
+## 📐 Flujo de Procesamiento
+
+```mermaid
+graph TD
+    A[Output de Weka (Texto)] -->|Entrada| B(Procesador de Datos);
+    B --> C{Motor de Análisis};
+    C -->|Extracción RegEx| D[Estado de Métricas];
+    D --> E[Componentes de Gráficos];
+    D --> F[Heatmap de Matriz de Confusión];
+    E & F --> G((Dashboard Final));
+    G --> H[Exportar Reporte];
 ```
 
-### Ejecución en Desarrollo
+---
 
+## 🚀 Guía de Instalación y Uso
+
+### Requisitos
+- [Bun](https://bun.sh/) o Node.js v18+.
+
+### Instalación de Dependencias
+```bash
+bun install
+```
+
+### Ejecución
 ```bash
 npm run dev
 ```
 
-### Proceso de Análisis
+---
 
-1.  **Entrena:** Ejecuta tu clasificador en Weka (k-NN, Naive Bayes, J48, etc.).
-2.  **Copia:** Selecciona el `Classifier Output` en Weka.
-3.  **Pega:** Introduce el bloque de texto en el selector correspondiente.
-4.  **Analiza:** Explora los indicadores de rendimiento en tiempo real.
+> [!TIP]
+> Para asegurar un parsing correcto, asegúrate de copiar el bloque completo del `Classifier Output` de Weka, incluyendo las secciones de `Detailed Accuracy By Class` y `Confusion Matrix`.
 
 ---
 
-## 📈 Métricas de Referencia
-
-La precisión global se valida mediante la fórmula estándar de clasificación multiclase:
-
-$$\text{Accuracy} = \frac{\sum \text{Clasificados Correctamente}}{\sum \text{Total de Instancias}}$$
-
----
-
-## 🤝 Contribución y Soporte
-
-Desarrollado como parte del ecosistema de **Digitalandia**. Ideal para integración en flujos de trabajo académicos y profesionales que requieren una capa de visualización sobre herramientas de minería de datos tradicionales.
-
----
-
-> [!NOTE]
-> Este proyecto prioriza la estética y la experiencia de usuario (UX Líquida) sin comprometer el rigor técnico del análisis de datos.
+© 2026 Weka Visualizer - Proyecto Escolar.
