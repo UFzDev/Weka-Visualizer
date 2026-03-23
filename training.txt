@@ -1,0 +1,79 @@
+=== Run information ===
+
+Scheme:       weka.classifiers.bayes.NaiveBayes 
+Relation:     training_set
+Instances:    105
+Attributes:   5
+              largo_separ
+              ancho_separ
+              largo_petal
+              ancho_petal
+              clase
+Test mode:    evaluate on training data
+
+=== Classifier model (full training set) ===
+
+Naive Bayes Classifier
+
+                         Class
+Attribute          Iris-setosa  Iris-virginica Iris-versicolor
+                        (0.37)          (0.34)          (0.29)
+===============================================================
+largo_separ
+  mean                   4.9938          6.6067           5.904
+  std. dev.              0.3539          0.6196          0.4932
+  weight sum                 39              36              30
+  precision                0.12            0.12            0.12
+
+ancho_separ
+  mean                   3.4344          3.0095          2.6743
+  std. dev.               0.351          0.3299          0.2778
+  weight sum                 39              36              30
+  precision              0.1143          0.1143          0.1143
+
+largo_petal
+  mean                   1.4485          5.5968          4.2628
+  std. dev.              0.1886          0.5363          0.5171
+  weight sum                 39              36              30
+  precision              0.1475          0.1475          0.1475
+
+ancho_petal
+  mean                   0.2813          2.0413          1.3029
+  std. dev.              0.1153          0.2641           0.188
+  weight sum                 39              36              30
+  precision              0.1143          0.1143          0.1143
+
+
+
+Time taken to build model: 0 seconds
+
+=== Evaluation on training set ===
+
+Time taken to test model on training data: 0 seconds
+
+=== Summary ===
+
+Correctly Classified Instances         101               96.1905 %
+Incorrectly Classified Instances         4                3.8095 %
+Kappa statistic                          0.9425
+Mean absolute error                      0.0271
+Root mean squared error                  0.1392
+Relative absolute error                  6.1283 %
+Root relative squared error             29.6034 %
+Total Number of Instances              105     
+
+=== Detailed Accuracy By Class ===
+
+                 TP Rate  FP Rate  Precision  Recall   F-Measure  MCC      ROC Area  PRC Area  Class
+                 1.000    0.000    1.000      1.000    1.000      1.000    1.000     1.000     Iris-setosa
+                 0.944    0.029    0.944      0.944    0.944      0.915    0.995     0.991     Iris-virginica
+                 0.933    0.027    0.933      0.933    0.933      0.907    0.994     0.986     Iris-versicolor
+Weighted Avg.    0.962    0.018    0.962      0.962    0.962      0.944    0.997     0.993     
+
+=== Confusion Matrix ===
+
+  a  b  c   <-- classified as
+ 39  0  0 |  a = Iris-setosa
+  0 34  2 |  b = Iris-virginica
+  0  2 28 |  c = Iris-versicolor
+

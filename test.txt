@@ -1,0 +1,91 @@
+=== Run information ===
+
+Scheme:       weka.classifiers.misc.InputMappedClassifier -I -trim -W weka.classifiers.bayes.NaiveBayes
+Relation:     training_set
+Instances:    105
+Attributes:   5
+              largo_separ
+              ancho_separ
+              largo_petal
+              ancho_petal
+              clase
+Test mode:    user supplied test set:  size unknown (reading incrementally)
+
+=== Classifier model (full training set) ===
+
+InputMappedClassifier:
+
+Naive Bayes Classifier
+
+                         Class
+Attribute          Iris-setosa  Iris-virginica Iris-versicolor
+                        (0.37)          (0.34)          (0.29)
+===============================================================
+largo_separ
+  mean                   4.9938          6.6067           5.904
+  std. dev.              0.3539          0.6196          0.4932
+  weight sum                 39              36              30
+  precision                0.12            0.12            0.12
+
+ancho_separ
+  mean                   3.4344          3.0095          2.6743
+  std. dev.               0.351          0.3299          0.2778
+  weight sum                 39              36              30
+  precision              0.1143          0.1143          0.1143
+
+largo_petal
+  mean                   1.4485          5.5968          4.2628
+  std. dev.              0.1886          0.5363          0.5171
+  weight sum                 39              36              30
+  precision              0.1475          0.1475          0.1475
+
+ancho_petal
+  mean                   0.2813          2.0413          1.3029
+  std. dev.              0.1153          0.2641           0.188
+  weight sum                 39              36              30
+  precision              0.1143          0.1143          0.1143
+
+
+Attribute mappings:
+
+Model attributes       	    Incoming attributes
+-----------------------	    ----------------
+(numeric) largo_separ  	--> 1 (numeric) largo_separ
+(numeric) ancho_separ  	--> 2 (numeric) ancho_separ
+(numeric) largo_petal  	--> 3 (numeric) largo_petal
+(numeric) ancho_petal  	--> 4 (numeric) ancho_petal
+(nominal) clase        	--> 5 (nominal) clase
+
+
+Time taken to build model: 0 seconds
+
+=== Evaluation on test set ===
+
+Time taken to test model on supplied test set: 0 seconds
+
+=== Summary ===
+
+Correctly Classified Instances          41               91.1111 %
+Incorrectly Classified Instances         4                8.8889 %
+Kappa statistic                          0.8624
+Mean absolute error                      0.0676
+Root mean squared error                  0.2212
+Relative absolute error                 15.0229 %
+Root relative squared error             46.1975 %
+Total Number of Instances               45     
+
+=== Detailed Accuracy By Class ===
+
+                 TP Rate  FP Rate  Precision  Recall   F-Measure  MCC      ROC Area  PRC Area  Class
+                 1.000    0.000    1.000      1.000    1.000      1.000    1.000     1.000     Iris-setosa
+                 0.857    0.065    0.857      0.857    0.857      0.793    0.975     0.956     Iris-virginica
+                 0.900    0.080    0.900      0.900    0.900      0.820    0.978     0.973     Iris-versicolor
+Weighted Avg.    0.911    0.056    0.911      0.911    0.911      0.855    0.982     0.974     
+
+=== Confusion Matrix ===
+
+  a  b  c   <-- classified as
+ 11  0  0 |  a = Iris-setosa
+  0 12  2 |  b = Iris-virginica
+  0  2 18 |  c = Iris-versicolor
+
