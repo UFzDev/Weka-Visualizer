@@ -9,8 +9,9 @@ import { ModelSession, TabType } from './types/session'
 import { Download, Upload } from 'lucide-react'
 import { useRef } from 'react'
 import { exportToExcel } from './utils/excelExport'
-import { FileSpreadsheet, HelpCircle } from 'lucide-react'
 import Tooltip from './components/Tooltip'
+import HelpModal from './components/HelpModal'
+import { FileSpreadsheet, HelpCircle, BookOpen } from 'lucide-react'
 
 const STORAGE_KEY = 'weka-sessions'
 
@@ -29,6 +30,7 @@ function App() {
   const [tempName, setTempName] = useState('')
   const [isExporting, setIsExporting] = useState(false)
   const [isHelpMode, setIsHelpMode] = useState(false)
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Persistencia
@@ -168,6 +170,20 @@ function App() {
             onChange={importData}
           />
           <button 
+            onClick={() => setIsHelpModalOpen(true)}
+            className="btn-primary flex-center" 
+            style={{ 
+              gap: '0.4rem', 
+              padding: '0.5rem 0.8rem',
+              background: 'rgba(124, 58, 237, 0.1)',
+              borderColor: 'rgba(124, 58, 237, 0.3)',
+              color: 'var(--accent-primary)'
+            }}
+          >
+            <BookOpen size={14} />
+            Cómo usar
+          </button>
+          <button 
             onClick={() => fileInputRef.current?.click()}
             className="btn-primary flex-center" 
             style={{ gap: '0.4rem', padding: '0.5rem 0.8rem' }}
@@ -183,7 +199,7 @@ function App() {
             title="Exportar a JSON"
           >
             <Download size={14} />
-            JSON
+            Exportar
           </button>
           <button 
             onClick={handleExcelReport}
@@ -430,6 +446,10 @@ function App() {
           </button>
         </div>
       </div>
+      <HelpModal 
+        isOpen={isHelpModalOpen} 
+        onClose={() => setIsHelpModalOpen(false)} 
+      />
     </main>
   )
 }
