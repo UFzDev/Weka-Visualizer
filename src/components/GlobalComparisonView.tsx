@@ -2,12 +2,23 @@ import { ModelSession } from '../types/session'
 import { parseWekaOutput } from '../utils/wekaParser'
 import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import TooltipComp from './Tooltip'
+import { HelpCircle } from 'lucide-react'
+
+const metricDefinitions: Record<string, string> = {
+  'Precisión (%)': 'Muestra el porcentaje total de aciertos de cada modelo. Por ejemplo, un 95% significa que el modelo clasificó correctamente 95 de cada 100 registros.',
+  'Estadística Kappa': 'Mide la calidad de la clasificación comparándola con lo que ocurriría por puro azar. Un valor cercano a 1.0 es excelente; un 0 significa que el modelo no es mejor que una adivinanza aleatoria.',
+  'Error Cuadrático Medio (RMSE)': 'Indica cuánto se desvían las predicciones de la realidad en una escala numérica. Cuanto más bajo sea este valor, "más fino" es el modelo en sus cálculos.',
+  'Error Local Inexacto (%)': 'Indica el porcentaje de registros que el modelo clasificó en la categoría equivocada. Es el complemento de la precisión.',
+  'Tiempos de Ejecución (s)': 'Compara cuánto tardó cada modelo en construirse (entrenar) frente a cuánto tardó en evaluar los datos de prueba.'
+};
 
 interface GlobalComparisonViewProps {
-  sessions: ModelSession[]
+  sessions: ModelSession[];
+  isHelpMode?: boolean;
 }
 
-export default function GlobalComparisonView({ sessions }: GlobalComparisonViewProps) {
+export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalComparisonViewProps) {
   const comparisonData = useMemo(() => {
     return sessions.map(session => ({
       id: session.id,
@@ -44,9 +55,51 @@ export default function GlobalComparisonView({ sessions }: GlobalComparisonViewP
             <tr style={{ background: 'var(--bg-dark)', borderBottom: '2px solid var(--border)' }}>
               <th style={thStyle}>Posición</th>
               <th style={thStyle}>Modelo / Algoritmo</th>
-              <th style={thStyle}>Precisión (%)</th>
-              <th style={thStyle}>Kappa</th>
-              <th style={thStyle}>RMSE</th>
+              <th style={thStyle}>
+                <TooltipComp text={metricDefinitions['Precisión (%)']} disabled={!isHelpMode}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '0.4rem',
+                    cursor: isHelpMode ? 'help' : 'default',
+                    color: isHelpMode ? 'var(--accent-primary)' : 'inherit',
+                    borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                  }}>
+                    Precisión (%)
+                    {isHelpMode && <HelpCircle size={12} />}
+                  </div>
+                </TooltipComp>
+              </th>
+              <th style={thStyle}>
+                <TooltipComp text={metricDefinitions['Estadítica Kappa']} disabled={!isHelpMode}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '0.4rem',
+                    cursor: isHelpMode ? 'help' : 'default',
+                    color: isHelpMode ? 'var(--accent-primary)' : 'inherit',
+                    borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                  }}>
+                    Kappa
+                    {isHelpMode && <HelpCircle size={12} />}
+                  </div>
+                </TooltipComp>
+              </th>
+              <th style={thStyle}>
+                <TooltipComp text={metricDefinitions['Error Cuadrático Medio (RMSE)']} disabled={!isHelpMode}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '0.4rem',
+                    cursor: isHelpMode ? 'help' : 'default',
+                    color: isHelpMode ? 'var(--accent-primary)' : 'inherit',
+                    borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                  }}>
+                    RMSE
+                    {isHelpMode && <HelpCircle size={12} />}
+                  </div>
+                </TooltipComp>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -86,7 +139,21 @@ export default function GlobalComparisonView({ sessions }: GlobalComparisonViewP
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
           {/* Gráfico de Precisión */}
           <div id="global-accuracy-chart" style={{ width: '100%' }}>
-            <h4 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8 }}>Precisión (%)</h4>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+              <TooltipComp text={metricDefinitions['Precisión (%)']} disabled={!isHelpMode}>
+                <h4 style={{ 
+                  color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
+                  fontSize: '0.9rem', 
+                  margin: 0, 
+                  opacity: 0.8,
+                  cursor: isHelpMode ? 'help' : 'default',
+                  borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                }}>
+                  Precisión (%)
+                </h4>
+              </TooltipComp>
+              {isHelpMode && <HelpCircle size={14} style={{ color: 'var(--accent-primary)', opacity: 0.7 }} />}
+            </div>
             <div style={{ height: 250 }}>
               <ResponsiveContainer>
                 <BarChart data={chartData}>
@@ -121,7 +188,21 @@ export default function GlobalComparisonView({ sessions }: GlobalComparisonViewP
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
             {/* Gráfico de Kappa */}
             <div id="global-kappa-chart">
-              <h4 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8 }}>Estadística Kappa</h4>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <TooltipComp text={metricDefinitions['Estadística Kappa']} disabled={!isHelpMode}>
+                  <h4 style={{ 
+                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
+                    fontSize: '0.9rem', 
+                    margin: 0, 
+                    opacity: 0.8,
+                    cursor: isHelpMode ? 'help' : 'default',
+                    borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                  }}>
+                    Estadística Kappa
+                  </h4>
+                </TooltipComp>
+                {isHelpMode && <HelpCircle size={14} style={{ color: 'var(--accent-primary)', opacity: 0.7 }} />}
+              </div>
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
                   <BarChart data={comparisonData.map(d => ({ 
@@ -142,7 +223,21 @@ export default function GlobalComparisonView({ sessions }: GlobalComparisonViewP
 
             {/* Gráfico de RMSE */}
             <div id="global-rmse-chart">
-              <h4 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8 }}>Error Cuadrático Medio (RMSE)</h4>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <TooltipComp text={metricDefinitions['Error Cuadrático Medio (RMSE)']} disabled={!isHelpMode}>
+                  <h4 style={{ 
+                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
+                    fontSize: '0.9rem', 
+                    margin: 0, 
+                    opacity: 0.8,
+                    cursor: isHelpMode ? 'help' : 'default',
+                    borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                  }}>
+                    Error Cuadrático Medio (RMSE)
+                  </h4>
+                </TooltipComp>
+                {isHelpMode && <HelpCircle size={14} style={{ color: 'var(--accent-primary)', opacity: 0.7 }} />}
+              </div>
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
                   <BarChart data={comparisonData.map(d => ({ 
@@ -163,7 +258,21 @@ export default function GlobalComparisonView({ sessions }: GlobalComparisonViewP
 
             {/* Gráfico de Error (%) */}
             <div id="global-error-chart">
-              <h4 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8 }}>Error Local Inexacto (%)</h4>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <TooltipComp text={metricDefinitions['Error Local Inexacto (%)']} disabled={!isHelpMode}>
+                  <h4 style={{ 
+                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
+                    fontSize: '0.9rem', 
+                    margin: 0, 
+                    opacity: 0.8,
+                    cursor: isHelpMode ? 'help' : 'default',
+                    borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                  }}>
+                    Error Local Inexacto (%)
+                  </h4>
+                </TooltipComp>
+                {isHelpMode && <HelpCircle size={14} style={{ color: 'var(--accent-primary)', opacity: 0.7 }} />}
+              </div>
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
                   <BarChart data={comparisonData.map(d => ({ 
@@ -184,7 +293,21 @@ export default function GlobalComparisonView({ sessions }: GlobalComparisonViewP
 
             {/* Gráfico de Tiempos Combine */}
             <div id="global-times-chart">
-              <h4 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8 }}>Tiempos de Ejecución (s)</h4>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <TooltipComp text={metricDefinitions['Tiempos de Ejecución (s)']} disabled={!isHelpMode}>
+                  <h4 style={{ 
+                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
+                    fontSize: '0.9rem', 
+                    margin: 0, 
+                    opacity: 0.8,
+                    cursor: isHelpMode ? 'help' : 'default',
+                    borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                  }}>
+                    Tiempos de Ejecución (s)
+                  </h4>
+                </TooltipComp>
+                {isHelpMode && <HelpCircle size={14} style={{ color: 'var(--accent-primary)', opacity: 0.7 }} />}
+              </div>
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
                   <BarChart data={comparisonData.map(d => ({ 

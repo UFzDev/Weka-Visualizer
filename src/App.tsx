@@ -9,7 +9,8 @@ import { ModelSession, TabType } from './types/session'
 import { Download, Upload } from 'lucide-react'
 import { useRef } from 'react'
 import { exportToExcel } from './utils/excelExport'
-import { FileSpreadsheet } from 'lucide-react'
+import { FileSpreadsheet, HelpCircle } from 'lucide-react'
+import Tooltip from './components/Tooltip'
 
 const STORAGE_KEY = 'weka-sessions'
 
@@ -27,6 +28,7 @@ function App() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [tempName, setTempName] = useState('')
   const [isExporting, setIsExporting] = useState(false)
+  const [isHelpMode, setIsHelpMode] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Persistencia
@@ -200,6 +202,21 @@ function App() {
             <FileSpreadsheet size={14} />
             {isExporting ? 'Generando...' : 'Reporte Excel'}
           </button>
+          <button 
+            onClick={() => setIsHelpMode(!isHelpMode)}
+            className={`btn-primary flex-center ${isHelpMode ? 'active' : ''}`} 
+            style={{ 
+              gap: '0.4rem', 
+              padding: '0.5rem 0.8rem',
+              borderColor: isHelpMode ? 'var(--accent-primary)' : 'var(--border)',
+              background: isHelpMode ? 'rgba(37, 99, 235, 0.1)' : 'var(--bg-card)',
+              color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)'
+            }}
+            title="Modo Ayuda: Explica qué significa cada métrica"
+          >
+            <HelpCircle size={14} />
+            {isHelpMode ? 'Ayuda Activa' : 'Modo Ayuda'}
+          </button>
           <div style={{ borderLeft: '1px solid var(--border)', height: '2rem', margin: '0 0.5rem' }} />
           <DefaultToggle />
         </div>
@@ -249,9 +266,9 @@ function App() {
       )}
 
       {activeTab === 'global-compare' ? (
-        <GlobalComparisonView sessions={sessions} />
+        <GlobalComparisonView sessions={sessions} isHelpMode={isHelpMode} />
       ) : activeTab === 'compare' ? (
-        <ComparisonView train={trainData} test={testData} />
+        <ComparisonView train={trainData} test={testData} isHelpMode={isHelpMode} />
       ) : (
         <>
           <div className="grid-cols-auto">
@@ -273,26 +290,72 @@ function App() {
               <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div className="grid-cols-auto" style={{ gap: '1rem' }}>
                   <div className="glass-card" style={{ textAlign: 'center', borderTop: '3px solid var(--success)' }}>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '600' }}>Precisión</span>
+                    <Tooltip text="Porcentaje de instancias clasificadas correctamente por el modelo." disabled={!isHelpMode}>
+                      <span style={{ 
+                        fontSize: '0.7rem', 
+                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)', 
+                        textTransform: 'uppercase', 
+                        fontWeight: '600',
+                        cursor: isHelpMode ? 'help' : 'default',
+                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                      }}>
+                        Precisión
+                      </span>
+                    </Tooltip>
                     <div style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--text-main)', marginTop: '0.25rem' }}>{currentData.summary.correctlyClassified}%</div>
                   </div>
                   <div className="glass-card" style={{ textAlign: 'center', borderTop: '3px solid var(--accent-primary)' }}>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '600' }}>Kappa</span>
+                    <Tooltip text="Medida de concordancia que descuenta la probabilidad de acierto por azar." disabled={!isHelpMode}>
+                      <span style={{ 
+                        fontSize: '0.7rem', 
+                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)', 
+                        textTransform: 'uppercase', 
+                        fontWeight: '600',
+                        cursor: isHelpMode ? 'help' : 'default',
+                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                      }}>
+                        Kappa
+                      </span>
+                    </Tooltip>
                     <div style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--text-main)', marginTop: '0.25rem' }}>{currentData.summary.kappa}</div>
                   </div>
                 </div>
 
                 <div className="glass-card">
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>RMSE:</span>
+                    <Tooltip text="Raíz del error cuadrático medio; indica la dispersión de los errores de predicción." disabled={!isHelpMode}>
+                      <span style={{ 
+                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                        cursor: isHelpMode ? 'help' : 'default',
+                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                      }}>
+                        RMSE:
+                      </span>
+                    </Tooltip>
                     <span style={{ fontWeight: '600' }}>{currentData.summary.rmse}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Tiempo Compilación:</span>
+                    <Tooltip text="Tiempo total que tardó el algoritmo en entrenar el modelo." disabled={!isHelpMode}>
+                      <span style={{ 
+                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                        cursor: isHelpMode ? 'help' : 'default',
+                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                      }}>
+                        Tiempo Compilación:
+                      </span>
+                    </Tooltip>
                     <span style={{ fontWeight: '600' }}>{currentData.buildTime}s</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Tiempo Evaluación:</span>
+                    <Tooltip text="Tiempo total que tardó en evaluar el modelo con los datos de prueba." disabled={!isHelpMode}>
+                      <span style={{ 
+                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                        cursor: isHelpMode ? 'help' : 'default',
+                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                      }}>
+                        Tiempo Evaluación:
+                      </span>
+                    </Tooltip>
                     <span style={{ fontWeight: '600' }}>{currentData.testTime}s</span>
                   </div>
                 </div>
@@ -308,7 +371,7 @@ function App() {
             <>
               <div style={{ marginTop: '2rem' }}>
                 <h3 style={{ color: 'var(--text-main)', marginBottom: '1rem', fontSize: '1rem', fontWeight: '600' }}>Detalle de Precisión por Clase</h3>
-                <MetricsGrid metrics={currentData.detailedAccuracy} />
+                <MetricsGrid metrics={currentData.detailedAccuracy} isHelpMode={isHelpMode} />
               </div>
               <div style={{ marginTop: '2rem' }}>
                 <h3 style={{ color: 'var(--text-main)', marginBottom: '1rem', fontSize: '1rem', fontWeight: '600' }}>Matriz de Confusión</h3>

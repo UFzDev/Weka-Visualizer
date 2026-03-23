@@ -1,12 +1,24 @@
 import React from 'react';
 import { WekaParsedData } from '../utils/wekaParser';
+import Tooltip from './Tooltip';
+import { HelpCircle } from 'lucide-react';
 
 interface ComparisonViewProps {
   train: WekaParsedData | null;
   test: WekaParsedData | null;
+  isHelpMode?: boolean;
 }
 
-const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test }) => {
+const metricDefinitions: Record<string, string> = {
+  'Precisión Global (%)': 'Muestra el porcentaje total de aciertos del modelo. Por ejemplo, un 95% significa que el modelo acertó en 95 de cada 100 casos presentados.',
+  'Índice Kappa': 'Mide la calidad de la clasificación comparándola con el azar. Un valor de 1.0 es una predicción perfecta, mientras que 0 indica que el modelo no es mejor que una adivinanza aleatoria.',
+  'Error Cuadrático (RMSE)': 'Indica cuánto se alejan las predicciones de los valores reales. Mientras más bajo sea este número, más preciso es el modelo en sus estimaciones numéricas.',
+  'Tiempo Construcción (s)': 'Es el tiempo que el algoritmo dedicó a "estudiar" los datos para generar el cerebro (modelo) que realizará las predicciones matemáticas.',
+  'Tiempo Validación (s)': 'Es el tiempo que tardó el modelo ya entrenado en procesar y evaluar los datos de prueba o validación.',
+  'Medida F por Clase (Comparativa)': 'Un equilibrio entre precisión y exhaustividad por cada categoría. Es la mejor forma de saber si el modelo es realmente bueno en una clase específica sin sesgos.'
+};
+
+const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode }) => {
   if (!train && !test) {
     return (
       <div className="glass-card flex-center animate-in" style={{ padding: '4rem', flexDirection: 'column', borderStyle: 'dashed' }}>
@@ -28,7 +40,22 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test }) => {
       <div className="grid-cols-auto" style={{ gap: '1.5rem' }}>
         {metrics.map(m => (
           <div key={m.name} className="glass-card">
-            <h4 style={{ marginBottom: '1.25rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '0.7rem', fontWeight: '600' }}>{m.name}</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+              <Tooltip text={metricDefinitions[m.name] || ""} disabled={!isHelpMode}>
+                <h4 style={{ 
+                  color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)', 
+                  textTransform: 'uppercase', 
+                  fontSize: '0.7rem', 
+                  fontWeight: '600', 
+                  margin: 0,
+                  cursor: isHelpMode ? 'help' : 'default',
+                  borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                }}>
+                  {m.name}
+                </h4>
+              </Tooltip>
+              {isHelpMode && <HelpCircle size={14} style={{ color: 'var(--accent-primary)', opacity: 0.7 }} />}
+            </div>
             
             <div style={{ marginBottom: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem', fontSize: '0.8rem' }}>
@@ -72,7 +99,21 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test }) => {
       {/* Comparison by Class (F-Measure) */}
       {train?.detailedAccuracy && test?.detailedAccuracy && (
         <div id="local-metrics-chart" className="glass-card" style={{ marginTop: '2rem' }}>
-          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-main)', fontSize: '1rem', fontWeight: '600' }}>Medida F por Clase (Comparativa)</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <Tooltip text={metricDefinitions['Medida F por Clase (Comparativa)']} disabled={!isHelpMode}>
+              <h3 style={{ 
+                color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
+                fontSize: '1rem', 
+                fontWeight: '600', 
+                margin: 0,
+                cursor: isHelpMode ? 'help' : 'default',
+                borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+              }}>
+                Medida F por Clase (Comparativa)
+              </h3>
+            </Tooltip>
+            {isHelpMode && <HelpCircle size={16} style={{ color: 'var(--accent-primary)', opacity: 0.7 }} />}
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {train.detailedAccuracy.map((tm, i) => {
               const testM = test.detailedAccuracy.find(m => m.className.trim() === tm.className.trim()) 
