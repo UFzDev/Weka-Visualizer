@@ -36,13 +36,13 @@ La aplicación ha sido desarrollada utilizando tecnologías modernas para garant
 
 ```mermaid
 graph TD
-    A[Output de Weka (Texto)] -->|Entrada| B(Procesador de Datos);
+    A["Output de Weka (Texto)"] -->|Entrada| B["Procesador de Datos"];
     B --> C{Motor de Análisis};
-    C -->|Extracción RegEx| D[Estado de Métricas];
-    D --> E[Componentes de Gráficos];
-    D --> F[Heatmap de Matriz de Confusión];
+    C -->|Extracción RegEx| D["Estado de Métricas"];
+    D --> E["Componentes de Gráficos"];
+    D --> F["Heatmap de Matriz de Confusión"];
     E & F --> G((Dashboard Final));
-    G --> H[Exportar Reporte];
+    G --> H["Exportar Reporte"];
 ```
 
 ---
