@@ -8,6 +8,8 @@ import { DefaultToggle } from '@/components/ui/theme-toggle'
 import { ModelSession, TabType } from './types/session'
 import { Download, Upload } from 'lucide-react'
 import { useRef } from 'react'
+import { exportToExcel } from './utils/excelExport'
+import { FileSpreadsheet } from 'lucide-react'
 
 const STORAGE_KEY = 'weka-sessions'
 
@@ -24,6 +26,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<TabType>('train')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [tempName, setTempName] = useState('')
+  const [isExporting, setIsExporting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Persistencia
@@ -128,6 +131,21 @@ function App() {
     reader.readAsText(file)
   }
 
+  const handleExcelReport = async () => {
+    setIsExporting(true)
+    // Pasamos el ID activo globalmente para que el motor sepa qué gráfico local capturar
+    ;(window as any).ACTIVE_SESSION_ID_FOR_EXPORT = activeSessionId
+    
+    // Pequeño delay para asegurar que los gráficos estén renderizados
+    await new Promise(r => setTimeout(r, 500))
+    
+    try {
+      await exportToExcel(sessions)
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   return (
     <main className="container animate-in">
       <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
@@ -163,7 +181,24 @@ function App() {
             title="Exportar a JSON"
           >
             <Download size={14} />
-            Exportar
+            JSON
+          </button>
+          <button 
+            onClick={handleExcelReport}
+            disabled={isExporting}
+            className="btn-primary flex-center" 
+            style={{ 
+              gap: '0.4rem', 
+              padding: '0.5rem 0.8rem',
+              background: 'var(--success)',
+              borderColor: 'var(--success)',
+              color: 'white',
+              opacity: isExporting ? 0.6 : 1
+            }}
+            title="Generar Reporte Excel (.xlsx)"
+          >
+            <FileSpreadsheet size={14} />
+            {isExporting ? 'Generando...' : 'Reporte Excel'}
           </button>
           <div style={{ borderLeft: '1px solid var(--border)', height: '2rem', margin: '0 0.5rem' }} />
           <DefaultToggle />

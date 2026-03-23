@@ -71,7 +71,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test }) => {
 
       {/* Comparison by Class (F-Measure) */}
       {train?.detailedAccuracy && test?.detailedAccuracy && (
-        <div className="glass-card" style={{ marginTop: '2rem' }}>
+        <div id="local-metrics-chart" className="glass-card" style={{ marginTop: '2rem' }}>
           <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-main)', fontSize: '1rem', fontWeight: '600' }}>Medida F por Clase (Comparativa)</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {train.detailedAccuracy.map((tm, i) => {

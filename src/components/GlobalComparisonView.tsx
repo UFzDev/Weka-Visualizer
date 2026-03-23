@@ -85,7 +85,7 @@ export default function GlobalComparisonView({ sessions }: GlobalComparisonViewP
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
           {/* Gráfico de Precisión */}
-          <div style={{ width: '100%' }}>
+          <div id="global-accuracy-chart" style={{ width: '100%' }}>
             <h4 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8 }}>Precisión (%)</h4>
             <div style={{ height: 250 }}>
               <ResponsiveContainer>
@@ -120,7 +120,7 @@ export default function GlobalComparisonView({ sessions }: GlobalComparisonViewP
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
             {/* Gráfico de Kappa */}
-            <div>
+            <div id="global-kappa-chart">
               <h4 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8 }}>Estadística Kappa</h4>
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
@@ -141,7 +141,7 @@ export default function GlobalComparisonView({ sessions }: GlobalComparisonViewP
             </div>
 
             {/* Gráfico de RMSE */}
-            <div>
+            <div id="global-rmse-chart">
               <h4 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8 }}>Error Cuadrático Medio (RMSE)</h4>
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
@@ -156,6 +156,48 @@ export default function GlobalComparisonView({ sessions }: GlobalComparisonViewP
                     <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)' }} itemStyle={{ color: 'var(--text-main)' }} />
                     <Bar dataKey="train" name="RMSE Train" fill="#ef4444" radius={[2, 2, 0, 0]} />
                     <Bar dataKey="test" name="RMSE Test" fill="#f59e0b" radius={[2, 2, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Gráfico de Error (%) */}
+            <div id="global-error-chart">
+              <h4 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8 }}>Error Local Inexacto (%)</h4>
+              <div style={{ height: 200 }}>
+                <ResponsiveContainer>
+                  <BarChart data={comparisonData.map(d => ({ 
+                    name: d.name, 
+                    train: d.train?.summary.incorrectlyClassified || 0,
+                    test: d.test?.summary.incorrectlyClassified || 0
+                  }))}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                    <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={10} tickLine={false} />
+                    <YAxis stroke="var(--text-muted)" fontSize={10} tickLine={false} />
+                    <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)' }} itemStyle={{ color: 'var(--text-main)' }} />
+                    <Bar dataKey="train" name="Error Train" fill="#ef4444" radius={[2, 2, 0, 0]} />
+                    <Bar dataKey="test" name="Error Test" fill="#f59e0b" radius={[2, 2, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Gráfico de Tiempos Combine */}
+            <div id="global-times-chart">
+              <h4 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8 }}>Tiempos de Ejecución (s)</h4>
+              <div style={{ height: 200 }}>
+                <ResponsiveContainer>
+                  <BarChart data={comparisonData.map(d => ({ 
+                    name: d.name, 
+                    build: d.train?.buildTime || 0,
+                    test: d.test?.testTime || 0
+                  }))}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                    <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={10} tickLine={false} />
+                    <YAxis stroke="var(--text-muted)" fontSize={10} tickLine={false} />
+                    <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)' }} itemStyle={{ color: 'var(--text-main)' }} />
+                    <Bar dataKey="build" name="Build Time" fill="#3b82f6" radius={[2, 2, 0, 0]} />
+                    <Bar dataKey="test" name="Test Time" fill="#10b981" radius={[2, 2, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
