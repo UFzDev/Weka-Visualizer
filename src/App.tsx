@@ -3,6 +3,7 @@ import { parseWekaOutput, WekaParsedData } from './utils/wekaParser'
 import MetricsGrid from './components/MetricsGrid'
 import ConfusionMatrix from './components/ConfusionMatrix'
 import ComparisonView from './components/ComparisonView'
+import { DefaultToggle } from '@/components/ui/theme-toggle'
 
 function App() {
   const [trainText, setTrainText] = useState('')
@@ -16,13 +17,16 @@ function App() {
 
   return (
     <main className="container animate-in">
-      <header style={{ marginBottom: '2.5rem', textAlign: 'left', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--text-main)', letterSpacing: '-0.025em' }}>
-          Weka Visualizer
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-          Análisis de Modelos
-        </p>
+      <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
+        <div>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--text-main)', letterSpacing: '-0.025em' }}>
+            Weka Visualizer
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+            Análisis de Modelos
+          </p>
+        </div>
+        <DefaultToggle />
       </header>
 
       {/* Navegación Principal */}

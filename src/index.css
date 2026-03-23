@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   /* Paleta Sobria - Minimalista */
   --bg-main: #f8fafc;
@@ -21,17 +23,31 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
+.dark {
+  --bg-main: #020617;
+  --bg-card: #0f172a;
+  --bg-dark: #020617;
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  
+  --border: #1e293b;
+  --border-active: #334155;
+  
+  color-scheme: dark;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg-main: #0f172a;
-    --bg-card: #1e293b;
+  :root:not(.light) {
+    --bg-main: #020617;
+    --bg-card: #0f172a;
     --bg-dark: #020617;
     
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     
-    --border: #334155;
-    --border-active: #475569;
+    --border: #1e293b;
+    --border-active: #334155;
   }
 }
 
