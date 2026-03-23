@@ -1,19 +1,122 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { parseWekaOutput, WekaParsedData } from './utils/wekaParser'
 import MetricsGrid from './components/MetricsGrid'
 import ConfusionMatrix from './components/ConfusionMatrix'
 import ComparisonView from './components/ComparisonView'
 import { DefaultToggle } from '@/components/ui/theme-toggle'
+import { ModelSession, TabType } from './types/session'
+import { Download, Upload } from 'lucide-react'
+import { useRef } from 'react'
+
+const STORAGE_KEY = 'weka-sessions'
+
+const DEFAULT_SESSIONS: ModelSession[] = [
+  { id: '1', name: 'Modelo 1', trainText: '', testText: '' }
+]
 
 function App() {
-  const [trainText, setTrainText] = useState('')
-  const [testText, setTestText] = useState('')
-  const [activeTab, setActiveTab] = useState<'train' | 'test' | 'compare'>('train')
-  
-  const trainData = useMemo<WekaParsedData | null>(() => parseWekaOutput(trainText), [trainText])
-  const testData = useMemo<WekaParsedData | null>(() => parseWekaOutput(testText), [testText])
+  const [sessions, setSessions] = useState<ModelSession[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    return saved ? JSON.parse(saved) : DEFAULT_SESSIONS
+  })
+  const [activeSessionId, setActiveSessionId] = useState<string>(sessions[0]?.id || '1')
+  const [activeTab, setActiveTab] = useState<TabType>('train')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Persistencia
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions))
+  }, [sessions])
+
+  const activeSession = useMemo(() => 
+    sessions.find(s => s.id === activeSessionId) || sessions[0], 
+    [sessions, activeSessionId]
+  )
+
+  const trainData = useMemo<WekaParsedData | null>(() => 
+    parseWekaOutput(activeSession.trainText), 
+    [activeSession.trainText]
+  )
+  const testData = useMemo<WekaParsedData | null>(() => 
+    parseWekaOutput(activeSession.testText), 
+    [activeSession.testText]
+  )
 
   const currentData = activeTab === 'train' ? trainData : testData
+
+  // Auto-renombrar pestaña al detectar algoritmo
+  useEffect(() => {
+    const detectedAlgo = trainData?.algorithm || testData?.algorithm
+    if (detectedAlgo && (activeSession.name.startsWith('Modelo ') || activeSession.name === '')) {
+      renameSession(activeSessionId, detectedAlgo)
+    }
+  }, [trainData?.algorithm, testData?.algorithm, activeSessionId])
+
+  const updateSessionText = (text: string, type: 'train' | 'test') => {
+    setSessions(prev => prev.map(s => 
+      s.id === activeSessionId 
+        ? { ...s, [type === 'train' ? 'trainText' : 'testText']: text }
+        : s
+    ))
+  }
+
+  const addSession = () => {
+    const newId = crypto.randomUUID()
+    const newSession: ModelSession = {
+      id: newId,
+      name: `Modelo ${sessions.length + 1}`,
+      trainText: '',
+      testText: ''
+    }
+    setSessions(prev => [...prev, newSession])
+    setActiveSessionId(newId)
+  }
+
+  const removeSession = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (sessions.length === 1) return
+    const newSessions = sessions.filter(s => s.id !== id)
+    setSessions(newSessions)
+    if (activeSessionId === id) {
+      setActiveSessionId(newSessions[0].id)
+    }
+  }
+
+  const renameSession = (id: string, newName: string) => {
+    setSessions(prev => prev.map(s => 
+      s.id === id ? { ...s, name: newName } : s
+    ))
+  }
+
+  const exportData = () => {
+    const dataStr = JSON.stringify(sessions, null, 2)
+    const blob = new Blob([dataStr], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `weka-visualizer-export-${new Date().toISOString().split('T')[0]}.json`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const importData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      try {
+        const imported = JSON.parse(event.target?.result as string)
+        if (Array.isArray(imported) && imported.length > 0) {
+          setSessions(imported)
+          setActiveSessionId(imported[0].id)
+        }
+      } catch (err) {
+        alert('Error al importar el archivo. Asegúrate de que es un JSON válido de Weka Visualizer.')
+      }
+    }
+    reader.readAsText(file)
+  }
 
   return (
     <main className="container animate-in">
@@ -26,7 +129,35 @@ function App() {
             Análisis de Modelos
           </p>
         </div>
-        <DefaultToggle />
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            style={{ display: 'none' }} 
+            accept=".json"
+            onChange={importData}
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="btn-primary flex-center" 
+            style={{ gap: '0.4rem', padding: '0.5rem 0.8rem' }}
+            title="Importar de JSON"
+          >
+            <Upload size={14} />
+            Importar
+          </button>
+          <button 
+            onClick={exportData}
+            className="btn-primary flex-center" 
+            style={{ gap: '0.4rem', padding: '0.5rem 0.8rem' }}
+            title="Exportar a JSON"
+          >
+            <Download size={14} />
+            Exportar
+          </button>
+          <div style={{ borderLeft: '1px solid var(--border)', height: '2rem', margin: '0 0.5rem' }} />
+          <DefaultToggle />
+        </div>
       </header>
 
       {/* Navegación Principal */}
@@ -78,8 +209,8 @@ function App() {
               <textarea 
                 placeholder={`Pega el output de Weka para ${activeTab === 'train' ? 'entrenamiento' : 'validación'}...`} 
                 rows={12}
-                value={activeTab === 'train' ? trainText : testText}
-                onChange={(e) => activeTab === 'train' ? setTrainText(e.target.value) : setTestText(e.target.value)}
+                value={activeTab === 'train' ? activeSession.trainText : activeSession.testText}
+                onChange={(e) => updateSessionText(e.target.value, activeTab === 'train' ? 'trainText' : 'testText' as any)}
               />
             </section>
 
@@ -137,6 +268,37 @@ function App() {
       <footer style={{ marginTop: '4rem', textAlign: 'left', padding: '2rem 0', color: 'var(--text-muted)', fontSize: '0.8rem', borderTop: '1px solid var(--border)' }}>
         Weka Visualizer — Herramienta de Ingeniería
       </footer>
+
+      {/* Excel-style Model Tabs */}
+      <div className="excel-tabs">
+        <div className="excel-tabs-container">
+          {sessions.map((session) => (
+            <div 
+              key={session.id}
+              onClick={() => setActiveSessionId(session.id)}
+              className={`excel-tab ${activeSessionId === session.id ? 'active' : ''}`}
+            >
+              <input 
+                value={session.name} 
+                onChange={(e) => renameSession(session.id, e.target.value)}
+                className="excel-tab-input"
+                title="Doble clic para renombrar (función nativa de input)"
+              />
+              {sessions.length > 1 && (
+                <button 
+                  onClick={(e) => removeSession(session.id, e)}
+                  className="excel-tab-close"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          ))}
+          <button onClick={addSession} className="excel-tab-add">
+            +
+          </button>
+        </div>
+      </div>
     </main>
   )
 }
