@@ -1,0 +1,63 @@
+=== Run information ===
+
+Scheme:       weka.classifiers.misc.InputMappedClassifier -I -trim -W weka.classifiers.lazy.IBk -- -K 1 -W 0 -A "weka.core.neighboursearch.LinearNNSearch -A \"weka.core.EuclideanDistance -R first-last\""
+Relation:     training_set
+Instances:    105
+Attributes:   5
+              largo_separ
+              ancho_separ
+              largo_petal
+              ancho_petal
+              clase
+Test mode:    user supplied test set:  size unknown (reading incrementally)
+
+=== Classifier model (full training set) ===
+
+InputMappedClassifier:
+
+IB1 instance-based classifier
+using 1 nearest neighbour(s) for classification
+
+Attribute mappings:
+
+Model attributes       	    Incoming attributes
+-----------------------	    ----------------
+(numeric) largo_separ  	--> 1 (numeric) largo_separ
+(numeric) ancho_separ  	--> 2 (numeric) ancho_separ
+(numeric) largo_petal  	--> 3 (numeric) largo_petal
+(numeric) ancho_petal  	--> 4 (numeric) ancho_petal
+(nominal) clase        	--> 5 (nominal) clase
+
+
+Time taken to build model: 0 seconds
+
+=== Evaluation on test set ===
+
+Time taken to test model on supplied test set: 0 seconds
+
+=== Summary ===
+
+Correctly Classified Instances          42               93.3333 %
+Incorrectly Classified Instances         3                6.6667 %
+Kappa statistic                          0.8963
+Mean absolute error                      0.0551
+Root mean squared error                  0.2083
+Relative absolute error                 12.2499 %
+Root relative squared error             43.5028 %
+Total Number of Instances               45     
+
+=== Detailed Accuracy By Class ===
+
+                 TP Rate  FP Rate  Precision  Recall   F-Measure  MCC      ROC Area  PRC Area  Class
+                 1.000    0.000    1.000      1.000    1.000      1.000    1.000     1.000     Iris-setosa
+                 0.857    0.032    0.923      0.857    0.889      0.843    0.918     0.843     Iris-virginica
+                 0.950    0.080    0.905      0.950    0.927      0.867    0.938     0.883     Iris-versicolor
+Weighted Avg.    0.933    0.046    0.934      0.933    0.933      0.892    0.947     0.899     
+
+=== Confusion Matrix ===
+
+  a  b  c   <-- classified as
+ 11  0  0 |  a = Iris-setosa
+  0 12  2 |  b = Iris-virginica
+  0  1 19 |  c = Iris-versicolor
+

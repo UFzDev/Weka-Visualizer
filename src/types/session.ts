@@ -5,4 +5,4 @@ export interface ModelSession {
   testText: string;
 }
 
-export type TabType = 'train' | 'test' | 'compare';
+export type TabType = 'train' | 'test' | 'compare' | 'global-compare';

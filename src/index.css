@@ -222,10 +222,24 @@ td {
   width: 100%;
   outline: none;
   cursor: pointer;
+  padding: 0;
 }
 
-.excel-tab.active .excel-tab-input {
+.excel-tab-input.editing {
+  background: var(--bg-main);
+  border: 1px solid var(--accent-primary);
+  border-radius: 2px;
+  padding: 2px 4px;
   cursor: text;
+  box-shadow: 0 0 0 2px rgba(var(--accent-primary-rgb), 0.2);
+}
+
+.excel-tab-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  user-select: none;
 }
 
 .excel-tab-close {

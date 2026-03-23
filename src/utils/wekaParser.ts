@@ -35,16 +35,19 @@ export interface WekaParsedData {
 }
 
 const extractAlgorithmName = (schemeLine: string): string => {
-  // Caso 1: InputMappedClassifier con flag -W
-  const wrappedMatch = schemeLine.match(/-W\s+([\w.]+)/);
-  if (wrappedMatch) {
-    const fullPath = wrappedMatch[1];
-    return fullPath.split('.').pop() || fullPath;
+  const parts = schemeLine.split(/\s+/);
+  const mainClass = parts[0].split('.').pop() || parts[0];
+
+  if (mainClass === 'InputMappedClassifier') {
+    // Buscamos el parámetro -W que sea una clase (que empiece con letra, no un número)
+    const wrappedMatch = schemeLine.match(/-W\s+([a-zA-Z][\w.]+)/);
+    if (wrappedMatch) {
+      const fullPath = wrappedMatch[1];
+      return fullPath.split('.').pop() || fullPath;
+    }
   }
 
-  // Caso 2: Path directo (weka.classifiers.X.Algorithm)
-  const directPath = schemeLine.split(/\s+/)[0];
-  return directPath.split('.').pop() || directPath;
+  return mainClass;
 };
 
 export const parseWekaOutput = (text: string): WekaParsedData | null => {

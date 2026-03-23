@@ -3,6 +3,7 @@ import { parseWekaOutput, WekaParsedData } from './utils/wekaParser'
 import MetricsGrid from './components/MetricsGrid'
 import ConfusionMatrix from './components/ConfusionMatrix'
 import ComparisonView from './components/ComparisonView'
+import GlobalComparisonView from './components/GlobalComparisonView'
 import { DefaultToggle } from '@/components/ui/theme-toggle'
 import { ModelSession, TabType } from './types/session'
 import { Download, Upload } from 'lucide-react'
@@ -21,6 +22,8 @@ function App() {
   })
   const [activeSessionId, setActiveSessionId] = useState<string>(sessions[0]?.id || '1')
   const [activeTab, setActiveTab] = useState<TabType>('train')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [tempName, setTempName] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Persistencia
@@ -86,6 +89,13 @@ function App() {
     setSessions(prev => prev.map(s => 
       s.id === id ? { ...s, name: newName } : s
     ))
+  }
+
+  const handleRenameSubmit = (id: string) => {
+    if (tempName.trim()) {
+      renameSession(id, tempName.trim())
+    }
+    setEditingId(null)
   }
 
   const exportData = () => {
@@ -179,7 +189,14 @@ function App() {
           className={`btn-primary ${activeTab === 'compare' ? 'active' : ''}`}
           style={{ fontWeight: 'bold' }}
         >
-          Comparativa
+          Comparativa Local
+        </button>
+        <button 
+          onClick={() => setActiveTab('global-compare')}
+          className={`btn-primary ${activeTab === 'global-compare' ? 'active' : ''}`}
+          style={{ fontWeight: 'bold', background: 'var(--success)', borderColor: 'var(--success)', color: 'white' }}
+        >
+          Comparativa Global
         </button>
       </div>
 
@@ -196,7 +213,9 @@ function App() {
         </div>
       )}
 
-      {activeTab === 'compare' ? (
+      {activeTab === 'global-compare' ? (
+        <GlobalComparisonView sessions={sessions} />
+      ) : activeTab === 'compare' ? (
         <ComparisonView train={trainData} test={testData} />
       ) : (
         <>
@@ -210,7 +229,7 @@ function App() {
                 placeholder={`Pega el output de Weka para ${activeTab === 'train' ? 'entrenamiento' : 'validación'}...`} 
                 rows={12}
                 value={activeTab === 'train' ? activeSession.trainText : activeSession.testText}
-                onChange={(e) => updateSessionText(e.target.value, activeTab === 'train' ? 'trainText' : 'testText' as any)}
+                onChange={(e) => updateSessionText(e.target.value, activeTab === 'train' ? 'train' : 'test')}
               />
             </section>
 
@@ -276,14 +295,28 @@ function App() {
             <div 
               key={session.id}
               onClick={() => setActiveSessionId(session.id)}
+              onDoubleClick={() => {
+                setEditingId(session.id)
+                setTempName(session.name)
+              }}
               className={`excel-tab ${activeSessionId === session.id ? 'active' : ''}`}
             >
-              <input 
-                value={session.name} 
-                onChange={(e) => renameSession(session.id, e.target.value)}
-                className="excel-tab-input"
-                title="Doble clic para renombrar (función nativa de input)"
-              />
+              {editingId === session.id ? (
+                <input 
+                  autoFocus
+                  value={tempName} 
+                  onChange={(e) => setTempName(e.target.value)}
+                  onBlur={() => handleRenameSubmit(session.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleRenameSubmit(session.id)
+                    if (e.key === 'Escape') setEditingId(null)
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="excel-tab-input editing"
+                />
+              ) : (
+                <span className="excel-tab-label">{session.name}</span>
+              )}
               {sessions.length > 1 && (
                 <button 
                   onClick={(e) => removeSession(session.id, e)}
