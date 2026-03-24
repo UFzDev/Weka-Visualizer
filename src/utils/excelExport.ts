@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { ModelSession } from '../types/session';
-import { parseWekaOutput, ClassMetrics } from './wekaParser';
+import { parseWekaOutput, ClassMetrics, WekaParsedData } from './wekaParser';
 
 const TRAIN_COLOR = 'FF00AEEF'; // Celeste Entrenamiento
 const TEST_COLOR = 'FF92D050';  // Verde Validación
@@ -29,16 +29,16 @@ const createProTable = (
   startRow: number, 
   title: string, 
   color: string, 
-  data: { name: string, metrics: any }[]
+  data: { name: string, metrics: WekaParsedData | null }[]
 ) => {
-  sheet.mergeCells(startRow, startCol, startRow, startCol + 6);
+  sheet.mergeCells(startRow, startCol, startRow, startCol + 8);
   const hCell = sheet.getCell(startRow, startCol);
   hCell.value = title;
   hCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: color } };
   hCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
   hCell.alignment = { horizontal: 'center' };
 
-  const cols = ['Algoritmo', '% Acierto', '% Error', 'Kappa', 'ECM', 'T. Construcción', 'T. Validación'];
+  const cols = ['Algoritmo', '% Acierto', '% Error', 'Kappa', 'ECM', 'RAE', 'RRSE', 'T. Construcción', 'T. Validación'];
   cols.forEach((c, i) => {
     const cell = sheet.getCell(startRow + 1, startCol + i);
     cell.value = c;
@@ -58,8 +58,12 @@ const createProTable = (
       sheet.getCell(rowIdx, startCol + 2).numFmt = '0.00%';
       sheet.getCell(rowIdx, startCol + 3).value = m.summary.kappa;
       sheet.getCell(rowIdx, startCol + 4).value = m.summary.rmse;
-      sheet.getCell(rowIdx, startCol + 5).value = `${m.buildTime}s`;
-      sheet.getCell(rowIdx, startCol + 6).value = `${m.testTime}s`;
+      sheet.getCell(rowIdx, startCol + 5).value = m.summary.rae / 100;
+      sheet.getCell(rowIdx, startCol + 5).numFmt = '0.00%';
+      sheet.getCell(rowIdx, startCol + 6).value = m.summary.rrse / 100;
+      sheet.getCell(rowIdx, startCol + 6).numFmt = '0.00%';
+      sheet.getCell(rowIdx, startCol + 7).value = `${m.buildTime}s`;
+      sheet.getCell(rowIdx, startCol + 8).value = `${m.testTime}s`;
     }
   });
 };
@@ -143,7 +147,7 @@ export const exportToExcel = async (sessions: ModelSession[]) => {
     createProTable(sheet, 1, 3, 'RESULTADOS ENTRENAMIENTO', TRAIN_COLOR, [{ name: session.name, metrics: trainData }]);
     createProTable(sheet, 11, 3, 'RESULTADOS VALIDACIÓN', TEST_COLOR, [{ name: session.name, metrics: testData }]);
 
-    let cmRow = 7;
+    const cmRow = 7;
     if (trainData?.confusionMatrix) {
         sheet.getCell(cmRow, 1).value = 'MATRIZ DE CONFUSIÓN (TRAIN)';
         sheet.getCell(cmRow, 1).font = { bold: true };
