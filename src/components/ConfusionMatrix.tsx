@@ -42,10 +42,11 @@ const ConfusionMatrix: React.FC<ConfusionMatrixProps> = ({ labels, matrix }) => 
 
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: `140px repeat(${labels.length}, 1fr)`, 
+            gridTemplateColumns: `140px repeat(${labels.length}, minmax(80px, 1fr))`, 
             gap: '1px',
             background: 'var(--border)',
-            width: '100%'
+            width: 'max-content',
+            minWidth: '100%'
           }}>
             {/* Esquina superior izquierda */}
             <div style={{ background: 'var(--bg-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', color: 'var(--text-muted)' }}>
