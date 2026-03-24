@@ -60,7 +60,7 @@ function App() {
     if (detectedAlgo && (activeSession.name.startsWith('Modelo ') || activeSession.name === '')) {
       renameSession(activeSessionId, detectedAlgo)
     }
-  }, [trainData?.algorithm, testData?.algorithm, activeSessionId])
+  }, [trainData?.algorithm, testData?.algorithm, activeSessionId, activeSession.name])
 
   const updateSessionText = (text: string, type: 'train' | 'test') => {
     setSessions(prev => prev.map(s => 
@@ -128,7 +128,7 @@ function App() {
           setSessions(imported)
           setActiveSessionId(imported[0].id)
         }
-      } catch (err) {
+      } catch {
         alert('Error al importar el archivo. Asegúrate de que es un JSON válido de Weka Visualizer.')
       }
     }
@@ -138,7 +138,7 @@ function App() {
   const handleExcelReport = async () => {
     setIsExporting(true)
     // Pasamos el ID activo globalmente para que el motor sepa qué gráfico local capturar
-    ;(window as any).ACTIVE_SESSION_ID_FOR_EXPORT = activeSessionId
+    ;(window as unknown as { ACTIVE_SESSION_ID_FOR_EXPORT: string }).ACTIVE_SESSION_ID_FOR_EXPORT = activeSessionId
     
     // Pequeño delay para asegurar que los gráficos estén renderizados
     await new Promise(r => setTimeout(r, 500))
@@ -373,6 +373,30 @@ function App() {
                       </span>
                     </Tooltip>
                     <span style={{ fontWeight: '600' }}>{currentData.testTime}s</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
+                    <Tooltip text="Error absoluto relativo." disabled={!isHelpMode}>
+                      <span style={{ 
+                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                        cursor: isHelpMode ? 'help' : 'default',
+                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                      }}>
+                        RAE:
+                      </span>
+                    </Tooltip>
+                    <span style={{ fontWeight: '600' }}>{currentData.summary.rae}%</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                    <Tooltip text="Error cuadrático relativo." disabled={!isHelpMode}>
+                      <span style={{ 
+                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                        cursor: isHelpMode ? 'help' : 'default',
+                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                      }}>
+                        RRSE:
+                      </span>
+                    </Tooltip>
+                    <span style={{ fontWeight: '600' }}>{currentData.summary.rrse}%</span>
                   </div>
                 </div>
               </section>

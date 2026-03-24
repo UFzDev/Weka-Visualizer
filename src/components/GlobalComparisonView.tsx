@@ -44,9 +44,21 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
     const data = comparisonData.filter(d => d[type])
     if (data.length === 0) return <p className="text-muted">No hay datos de {type === 'train' ? 'entrenamiento' : 'validación'} para comparar.</p>
 
-    const sortedData = [...data].sort((a, b) => 
-      (b[type]?.summary.correctlyClassified || 0) - (a[type]?.summary.correctlyClassified || 0)
-    )
+    const sortedData = [...data].sort((a, b) => {
+      const metricsA = a[type]!.summary;
+      const metricsB = b[type]!.summary;
+
+      // 1. Precisión (%) - Mayor es mejor
+      if (metricsB.correctlyClassified !== metricsA.correctlyClassified) {
+        return metricsB.correctlyClassified - metricsA.correctlyClassified;
+      }
+      // 2. Estadística Kappa - Mayor es mejor
+      if (metricsB.kappa !== metricsA.kappa) {
+        return metricsB.kappa - metricsA.kappa;
+      }
+      // 3. RMSE - Menor es mejor (prioridad a 0)
+      return metricsA.rmse - metricsB.rmse;
+    })
 
     return (
       <div className="glass-card overflow-x-auto" style={{ padding: 0 }}>
@@ -71,7 +83,7 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
                 </TooltipComp>
               </th>
               <th style={thStyle}>
-                <TooltipComp text={metricDefinitions['Estadítica Kappa']} disabled={!isHelpMode}>
+                <TooltipComp text={metricDefinitions['Estadística Kappa']} disabled={!isHelpMode}>
                   <div style={{ 
                     display: 'flex', 
                     alignItems: 'center', 
@@ -100,6 +112,8 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
                   </div>
                 </TooltipComp>
               </th>
+              <th style={thStyle}>RAE</th>
+              <th style={thStyle}>RRSE</th>
             </tr>
           </thead>
           <tbody>
@@ -120,6 +134,8 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
                   </td>
                   <td style={tdStyle}>{metrics.summary.kappa}</td>
                   <td style={tdStyle}>{metrics.summary.rmse}</td>
+                  <td style={tdStyle}>{metrics.summary.rae}%</td>
+                  <td style={tdStyle}>{metrics.summary.rrse}%</td>
                 </tr>
               )
             })}
@@ -158,7 +174,17 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
               <ResponsiveContainer>
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                  <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="var(--text-muted)" 
+                    fontSize={11} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    interval={0}
+                    angle={-45}
+                    textAnchor="end"
+                    height={70}
+                  />
                   <YAxis stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} domain={[0, 100]} />
                   <Tooltip 
                     contentStyle={{ 
@@ -211,7 +237,16 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
                     test: d.test?.summary.kappa || 0
                   }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                    <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={10} tickLine={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="var(--text-muted)" 
+                      fontSize={10} 
+                      tickLine={false} 
+                      interval={0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
                     <YAxis stroke="var(--text-muted)" fontSize={10} tickLine={false} />
                     <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)' }} itemStyle={{ color: 'var(--text-main)' }} />
                     <Bar dataKey="train" name="Kappa Train" fill="var(--accent-primary)" radius={[2, 2, 0, 0]} />
@@ -246,7 +281,16 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
                     test: d.test?.summary.rmse || 0
                   }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                    <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={10} tickLine={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="var(--text-muted)" 
+                      fontSize={10} 
+                      tickLine={false} 
+                      interval={0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
                     <YAxis stroke="var(--text-muted)" fontSize={10} tickLine={false} />
                     <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)' }} itemStyle={{ color: 'var(--text-main)' }} />
                     <Bar dataKey="train" name="RMSE Train" fill="#ef4444" radius={[2, 2, 0, 0]} />
@@ -281,7 +325,16 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
                     test: d.test?.summary.incorrectlyClassified || 0
                   }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                    <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={10} tickLine={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="var(--text-muted)" 
+                      fontSize={10} 
+                      tickLine={false} 
+                      interval={0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
                     <YAxis stroke="var(--text-muted)" fontSize={10} tickLine={false} />
                     <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)' }} itemStyle={{ color: 'var(--text-main)' }} />
                     <Bar dataKey="train" name="Error Train" fill="#ef4444" radius={[2, 2, 0, 0]} />
@@ -316,7 +369,16 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
                     test: d.test?.testTime || 0
                   }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                    <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={10} tickLine={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="var(--text-muted)" 
+                      fontSize={10} 
+                      tickLine={false} 
+                      interval={0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
                     <YAxis stroke="var(--text-muted)" fontSize={10} tickLine={false} />
                     <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)' }} itemStyle={{ color: 'var(--text-main)' }} />
                     <Bar dataKey="build" name="Build Time" fill="#3b82f6" radius={[2, 2, 0, 0]} />
