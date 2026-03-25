@@ -222,6 +222,19 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
               <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0, lineHeight: '1.5' }}>
                 <strong style={{ color: '#fff' }}>RRSE (Error Cuadrático Relativo):</strong> Similar al RAE pero más estricto con los errores grandes. Ayuda a identificar modelos con fallos críticos.
               </p>
+              <p style={{ 
+                color: 'var(--accent-primary)', 
+                fontSize: '0.8rem', 
+                margin: '0.5rem 0 0 0', 
+                padding: '0.75rem', 
+                background: 'rgba(124, 58, 237, 0.1)', 
+                borderRadius: '0.5rem',
+                borderLeft: '3px solid var(--accent-primary)'
+              }}>
+                <strong style={{ color: '#fff' }}>Criterio de Ranking:</strong> Los modelos se ordenan automáticamente priorizando: 
+                <br />
+                1. <strong>Menor Error</strong> → 2. <strong>Mayor Kappa</strong> → 3. <strong>Menor Tiempo</strong>
+              </p>
             </div>
           </section>
         </div>

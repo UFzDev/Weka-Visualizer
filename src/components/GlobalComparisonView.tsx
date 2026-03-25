@@ -3,7 +3,7 @@ import { parseWekaOutput } from '../utils/wekaParser'
 import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import TooltipComp from './Tooltip'
-import { HelpCircle } from 'lucide-react'
+import { HelpCircle, Info } from 'lucide-react'
 
 const metricDefinitions: Record<string, string> = {
   'Precisión (%)': 'Muestra el porcentaje total de aciertos de cada modelo. Por ejemplo, un 95% significa que el modelo clasificó correctamente 95 de cada 100 registros.',
@@ -69,7 +69,12 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
     })
 
     return (
-      <div className="glass-card overflow-x-auto" style={{ padding: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', color: 'var(--text-muted)', opacity: 0.8, paddingLeft: '0.5rem' }}>
+          <Info size={12} className="text-accent" />
+          <span>Ordenado por: <strong style={{color: 'var(--text-main)'}}>Menor Error</strong> → <strong style={{color: 'var(--text-main)'}}>Kappa</strong> → <strong style={{color: 'var(--text-main)'}}>Tiempo</strong></span>
+        </div>
+        <div className="glass-card overflow-x-auto" style={{ padding: 0 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: 'var(--bg-dark)', borderBottom: '2px solid var(--border)' }}>
@@ -178,6 +183,7 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
           </tbody>
         </table>
       </div>
+    </div>
     )
   }
 
