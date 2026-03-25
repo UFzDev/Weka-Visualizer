@@ -8,14 +8,14 @@ const TEST_COLOR = 'FF92D050';  // Verde Validación
 const BG_DARK = 'FF1F2937';
 
 const setupSheet = (sheet: ExcelJS.Worksheet, title: string) => {
-  sheet.mergeCells('A1:S1'); 
+  sheet.mergeCells('A1:S1');
   const mainTitle = sheet.getCell('A1');
   mainTitle.value = title;
   mainTitle.font = { size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
   mainTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: BG_DARK } };
   mainTitle.alignment = { horizontal: 'center', vertical: 'middle' };
   sheet.getRow(1).height = 30;
-  
+
   sheet.columns = [
     { width: 25 }, { width: 10 }, { width: 10 }, { width: 10 }, { width: 10 }, { width: 10 }, { width: 10 }, { width: 10 }, { width: 10 },
     { width: 5 }, // Spacer (Col 10)
@@ -24,11 +24,11 @@ const setupSheet = (sheet: ExcelJS.Worksheet, title: string) => {
 };
 
 const createProTable = (
-  sheet: ExcelJS.Worksheet, 
-  startCol: number, 
-  startRow: number, 
-  title: string, 
-  color: string, 
+  sheet: ExcelJS.Worksheet,
+  startCol: number,
+  startRow: number,
+  title: string,
+  color: string,
   data: { name: string, metrics: WekaParsedData | null }[]
 ) => {
   sheet.mergeCells(startRow, startCol, startRow, startCol + 8);
@@ -117,7 +117,7 @@ const createClassMetricsTable = (
 export const exportToExcel = async (sessions: ModelSession[]) => {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'Weka Visualizer';
-  
+
   // --- GLOBAL SHEET ---
   const globalSheet = workbook.addWorksheet('Resumen Global');
   setupSheet(globalSheet, 'REPORTE COMPARATIVO DE TODOS LOS MODELOS');
@@ -128,8 +128,25 @@ export const exportToExcel = async (sessions: ModelSession[]) => {
     test: parseWekaOutput(s.testText)
   })).filter(s => s.train || s.test);
 
-  const sortedTrain = [...parsedAll].sort((a,b) => (b.train?.summary.correctlyClassified || 0) - (a.train?.summary.correctlyClassified || 0));
-  const sortedTest = [...parsedAll].sort((a,b) => (b.test?.summary.correctlyClassified || 0) - (a.test?.summary.correctlyClassified || 0));
+  const sortedTrain = [...parsedAll].sort((a, b) => {
+    const sA = a.train?.summary;
+    const sB = b.train?.summary;
+    if (!sA || !sB) return 0;
+    if (sA.incorrectlyClassified !== sB.incorrectlyClassified) return sA.incorrectlyClassified - sB.incorrectlyClassified;
+    if (sB.kappa !== sA.kappa) return sB.kappa - sA.kappa;
+    if (a.train!.buildTime !== b.train!.buildTime) return a.train!.buildTime - b.train!.buildTime;
+    return sA.rmse - sB.rmse;
+  });
+
+  const sortedTest = [...parsedAll].sort((a, b) => {
+    const sA = a.test?.summary;
+    const sB = b.test?.summary;
+    if (!sA || !sB) return 0;
+    if (sA.incorrectlyClassified !== sB.incorrectlyClassified) return sA.incorrectlyClassified - sB.incorrectlyClassified;
+    if (sB.kappa !== sA.kappa) return sB.kappa - sA.kappa;
+    if (a.test!.testTime !== b.test!.testTime) return a.test!.testTime - b.test!.testTime;
+    return sA.rmse - sB.rmse;
+  });
 
   createProTable(globalSheet, 1, 3, 'TABLA DE ENTRENAMIENTO', TRAIN_COLOR, sortedTrain.map(s => ({ name: s.name, metrics: s.train })));
   createProTable(globalSheet, 11, 3, 'TABLA DE VALIDACION', TEST_COLOR, sortedTest.map(s => ({ name: s.name, metrics: s.test })));
@@ -149,27 +166,27 @@ export const exportToExcel = async (sessions: ModelSession[]) => {
 
     const cmRow = 7;
     if (trainData?.confusionMatrix) {
-        sheet.getCell(cmRow, 1).value = 'MATRIZ DE CONFUSIÓN (TRAIN)';
-        sheet.getCell(cmRow, 1).font = { bold: true };
-        sheet.getRow(cmRow + 1).values = ['', ...trainData.confusionMatrix.labels];
-        trainData.confusionMatrix.matrix.forEach((row, idx) => {
-            sheet.getRow(cmRow + 2 + idx).values = [trainData.confusionMatrix.labels[idx], ...row];
-        });
+      sheet.getCell(cmRow, 1).value = 'MATRIZ DE CONFUSIÓN (TRAIN)';
+      sheet.getCell(cmRow, 1).font = { bold: true };
+      sheet.getRow(cmRow + 1).values = ['', ...trainData.confusionMatrix.labels];
+      trainData.confusionMatrix.matrix.forEach((row, idx) => {
+        sheet.getRow(cmRow + 2 + idx).values = [trainData.confusionMatrix.labels[idx], ...row];
+      });
     }
-    
-    if (testData?.confusionMatrix) {
-        sheet.getCell(cmRow, 11).value = 'MATRIZ DE CONFUSIÓN (TEST)';
-        sheet.getCell(cmRow, 11).font = { bold: true };
-        const rowOffset = cmRow + 1;
-        testData.confusionMatrix.labels.forEach((l, i) => sheet.getCell(rowOffset, 12 + i).value = l);
 
-        testData.confusionMatrix.matrix.forEach((row, idx) => {
-            const rIdx = cmRow + 2 + idx;
-            sheet.getCell(rIdx, 11).value = testData.confusionMatrix.labels[idx];
-            row.forEach((val, colIdx) => {
-                sheet.getCell(rIdx, 12 + colIdx).value = val;
-            });
+    if (testData?.confusionMatrix) {
+      sheet.getCell(cmRow, 11).value = 'MATRIZ DE CONFUSIÓN (TEST)';
+      sheet.getCell(cmRow, 11).font = { bold: true };
+      const rowOffset = cmRow + 1;
+      testData.confusionMatrix.labels.forEach((l, i) => sheet.getCell(rowOffset, 12 + i).value = l);
+
+      testData.confusionMatrix.matrix.forEach((row, idx) => {
+        const rIdx = cmRow + 2 + idx;
+        sheet.getCell(rIdx, 11).value = testData.confusionMatrix.labels[idx];
+        row.forEach((val, colIdx) => {
+          sheet.getCell(rIdx, 12 + colIdx).value = val;
         });
+      });
     }
 
     const maxCMRows = Math.max(trainData?.confusionMatrix.labels.length || 0, testData?.confusionMatrix.labels.length || 0);

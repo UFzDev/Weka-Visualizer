@@ -29,9 +29,9 @@ const MetricsGrid: React.FC<MetricsGridProps> = ({ metrics, isHelpMode }) => {
             {['TP Rate', 'FP Rate', 'Precisión', 'Recall', 'Medida F', 'MCC', 'ROC Area', 'PRC Area'].map(header => (
               <th key={header}>
                 <Tooltip text={metricDefinitions[header] || ""} disabled={!isHelpMode}>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: '0.3rem',
                     cursor: isHelpMode ? 'help' : 'inherit',
                     color: isHelpMode ? 'var(--accent-primary)' : 'inherit',

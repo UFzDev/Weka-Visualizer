@@ -10,7 +10,9 @@ const metricDefinitions: Record<string, string> = {
   'Estadística Kappa': 'Mide la calidad de la clasificación comparándola con lo que ocurriría por puro azar. Un valor cercano a 1.0 es excelente; un 0 significa que el modelo no es mejor que una adivinanza aleatoria.',
   'Error Cuadrático Medio (RMSE)': 'Indica cuánto se desvían las predicciones de la realidad en una escala numérica. Cuanto más bajo sea este valor, "más fino" es el modelo en sus cálculos.',
   'Error Local Inexacto (%)': 'Indica el porcentaje de registros que el modelo clasificó en la categoría equivocada. Es el complemento de la precisión.',
-  'Tiempos de Ejecución (s)': 'Compara cuánto tardó cada modelo en construirse (entrenar) frente a cuánto tardó en evaluar los datos de prueba.'
+  'Tiempos de Ejecución (s)': 'Compara cuánto tardó cada modelo en construirse (entrenar) frente a cuánto tardó en evaluar los datos de prueba.',
+  'Error Absoluto Relativo (RAE)': 'Compara el error del modelo con un predictor simple que solo usa la media. Un valor bajo (cercano al 0%) indica un gran desempeño frente a lo básico.',
+  'Error Cuadrático Relativo (RRSE)': 'Similar al RAE pero penaliza más los errores grandes. Es vital para asegurar que el modelo no tenga fallos catastróficos.'
 };
 
 interface GlobalComparisonViewProps {
@@ -47,16 +49,22 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
     const sortedData = [...data].sort((a, b) => {
       const metricsA = a[type]!.summary;
       const metricsB = b[type]!.summary;
+      const timeA = type === 'train' ? a.train?.buildTime || 0 : a.test?.testTime || 0;
+      const timeB = type === 'train' ? b.train?.buildTime || 0 : b.test?.testTime || 0;
 
-      // 1. Precisión (%) - Mayor es mejor
-      if (metricsB.correctlyClassified !== metricsA.correctlyClassified) {
-        return metricsB.correctlyClassified - metricsA.correctlyClassified;
+      // 1. Error (Inexacto) - Menor es mejor
+      if (metricsA.incorrectlyClassified !== metricsB.incorrectlyClassified) {
+        return metricsA.incorrectlyClassified - metricsB.incorrectlyClassified;
       }
-      // 2. Estadística Kappa - Mayor es mejor
+      // 2. Kappa - Mayor es mejor (Asegura que no es azar)
       if (metricsB.kappa !== metricsA.kappa) {
         return metricsB.kappa - metricsA.kappa;
       }
-      // 3. RMSE - Menor es mejor (prioridad a 0)
+      // 3. Tiempo - Menor es mejor (Eficiencia)
+      if (timeA !== timeB) {
+        return timeA - timeB;
+      }
+      // 4. RMSE - Menor es mejor (Precisión numérica)
       return metricsA.rmse - metricsB.rmse;
     })
 
@@ -69,9 +77,9 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
               <th style={thStyle}>Modelo / Algoritmo</th>
               <th style={thStyle}>
                 <TooltipComp text={metricDefinitions['Precisión (%)']} disabled={!isHelpMode}>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: '0.4rem',
                     cursor: isHelpMode ? 'help' : 'default',
                     color: isHelpMode ? 'var(--accent-primary)' : 'inherit',
@@ -84,9 +92,9 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
               </th>
               <th style={thStyle}>
                 <TooltipComp text={metricDefinitions['Estadística Kappa']} disabled={!isHelpMode}>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: '0.4rem',
                     cursor: isHelpMode ? 'help' : 'default',
                     color: isHelpMode ? 'var(--accent-primary)' : 'inherit',
@@ -99,9 +107,9 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
               </th>
               <th style={thStyle}>
                 <TooltipComp text={metricDefinitions['Error Cuadrático Medio (RMSE)']} disabled={!isHelpMode}>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: '0.4rem',
                     cursor: isHelpMode ? 'help' : 'default',
                     color: isHelpMode ? 'var(--accent-primary)' : 'inherit',
@@ -112,8 +120,36 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
                   </div>
                 </TooltipComp>
               </th>
-              <th style={thStyle}>RAE</th>
-              <th style={thStyle}>RRSE</th>
+              <th style={thStyle}>
+                <TooltipComp text={metricDefinitions['Error Absoluto Relativo (RAE)']} disabled={!isHelpMode}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    cursor: isHelpMode ? 'help' : 'default',
+                    color: isHelpMode ? 'var(--accent-primary)' : 'inherit',
+                    borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                  }}>
+                    RAE
+                    {isHelpMode && <HelpCircle size={12} />}
+                  </div>
+                </TooltipComp>
+              </th>
+              <th style={thStyle}>
+                <TooltipComp text={metricDefinitions['Error Cuadrático Relativo (RRSE)']} disabled={!isHelpMode}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    cursor: isHelpMode ? 'help' : 'default',
+                    color: isHelpMode ? 'var(--accent-primary)' : 'inherit',
+                    borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                  }}>
+                    RRSE
+                    {isHelpMode && <HelpCircle size={12} />}
+                  </div>
+                </TooltipComp>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -151,16 +187,16 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
         <h3 style={{ color: 'var(--text-main)', marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: '700' }}>
           Análisis entre Modelos
         </h3>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
           {/* Gráfico de Precisión */}
           <div id="global-accuracy-chart" style={{ width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
               <TooltipComp text={metricDefinitions['Precisión (%)']} disabled={!isHelpMode}>
-                <h4 style={{ 
-                  color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
-                  fontSize: '0.9rem', 
-                  margin: 0, 
+                <h4 style={{
+                  color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)',
+                  fontSize: '0.9rem',
+                  margin: 0,
                   opacity: 0.8,
                   cursor: isHelpMode ? 'help' : 'default',
                   borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -174,21 +210,21 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
               <ResponsiveContainer>
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke="var(--text-muted)" 
-                    fontSize={11} 
-                    tickLine={false} 
-                    axisLine={false} 
+                  <XAxis
+                    dataKey="name"
+                    stroke="var(--text-muted)"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
                     interval={0}
                     angle={-45}
                     textAnchor="end"
                     height={70}
                   />
                   <YAxis stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} domain={[0, 100]} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      background: 'var(--bg-card)', 
+                  <Tooltip
+                    contentStyle={{
+                      background: 'var(--bg-card)',
                       border: '1px solid var(--border)',
                       borderRadius: '8px',
                       color: 'var(--text-main)'
@@ -216,10 +252,10 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
             <div id="global-kappa-chart">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                 <TooltipComp text={metricDefinitions['Estadística Kappa']} disabled={!isHelpMode}>
-                  <h4 style={{ 
-                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
-                    fontSize: '0.9rem', 
-                    margin: 0, 
+                  <h4 style={{
+                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)',
+                    fontSize: '0.9rem',
+                    margin: 0,
                     opacity: 0.8,
                     cursor: isHelpMode ? 'help' : 'default',
                     borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -231,17 +267,17 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
               </div>
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
-                  <BarChart data={comparisonData.map(d => ({ 
-                    name: d.name, 
+                  <BarChart data={comparisonData.map(d => ({
+                    name: d.name,
                     train: d.train?.summary.kappa || 0,
                     test: d.test?.summary.kappa || 0
                   }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="var(--text-muted)" 
-                      fontSize={10} 
-                      tickLine={false} 
+                    <XAxis
+                      dataKey="name"
+                      stroke="var(--text-muted)"
+                      fontSize={10}
+                      tickLine={false}
                       interval={0}
                       angle={-45}
                       textAnchor="end"
@@ -260,10 +296,10 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
             <div id="global-rmse-chart">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                 <TooltipComp text={metricDefinitions['Error Cuadrático Medio (RMSE)']} disabled={!isHelpMode}>
-                  <h4 style={{ 
-                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
-                    fontSize: '0.9rem', 
-                    margin: 0, 
+                  <h4 style={{
+                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)',
+                    fontSize: '0.9rem',
+                    margin: 0,
                     opacity: 0.8,
                     cursor: isHelpMode ? 'help' : 'default',
                     borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -275,17 +311,17 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
               </div>
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
-                  <BarChart data={comparisonData.map(d => ({ 
-                    name: d.name, 
+                  <BarChart data={comparisonData.map(d => ({
+                    name: d.name,
                     train: d.train?.summary.rmse || 0,
                     test: d.test?.summary.rmse || 0
                   }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="var(--text-muted)" 
-                      fontSize={10} 
-                      tickLine={false} 
+                    <XAxis
+                      dataKey="name"
+                      stroke="var(--text-muted)"
+                      fontSize={10}
+                      tickLine={false}
                       interval={0}
                       angle={-45}
                       textAnchor="end"
@@ -304,10 +340,10 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
             <div id="global-error-chart">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                 <TooltipComp text={metricDefinitions['Error Local Inexacto (%)']} disabled={!isHelpMode}>
-                  <h4 style={{ 
-                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
-                    fontSize: '0.9rem', 
-                    margin: 0, 
+                  <h4 style={{
+                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)',
+                    fontSize: '0.9rem',
+                    margin: 0,
                     opacity: 0.8,
                     cursor: isHelpMode ? 'help' : 'default',
                     borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -319,17 +355,17 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
               </div>
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
-                  <BarChart data={comparisonData.map(d => ({ 
-                    name: d.name, 
+                  <BarChart data={comparisonData.map(d => ({
+                    name: d.name,
                     train: d.train?.summary.incorrectlyClassified || 0,
                     test: d.test?.summary.incorrectlyClassified || 0
                   }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="var(--text-muted)" 
-                      fontSize={10} 
-                      tickLine={false} 
+                    <XAxis
+                      dataKey="name"
+                      stroke="var(--text-muted)"
+                      fontSize={10}
+                      tickLine={false}
                       interval={0}
                       angle={-45}
                       textAnchor="end"
@@ -348,10 +384,10 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
             <div id="global-times-chart">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                 <TooltipComp text={metricDefinitions['Tiempos de Ejecución (s)']} disabled={!isHelpMode}>
-                  <h4 style={{ 
-                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
-                    fontSize: '0.9rem', 
-                    margin: 0, 
+                  <h4 style={{
+                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)',
+                    fontSize: '0.9rem',
+                    margin: 0,
                     opacity: 0.8,
                     cursor: isHelpMode ? 'help' : 'default',
                     borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -363,17 +399,17 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
               </div>
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
-                  <BarChart data={comparisonData.map(d => ({ 
-                    name: d.name, 
+                  <BarChart data={comparisonData.map(d => ({
+                    name: d.name,
                     build: d.train?.buildTime || 0,
                     test: d.test?.testTime || 0
                   }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="var(--text-muted)" 
-                      fontSize={10} 
-                      tickLine={false} 
+                    <XAxis
+                      dataKey="name"
+                      stroke="var(--text-muted)"
+                      fontSize={10}
+                      tickLine={false}
                       interval={0}
                       angle={-45}
                       textAnchor="end"

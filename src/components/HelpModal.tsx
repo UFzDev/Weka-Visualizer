@@ -181,7 +181,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
             </div>
           </section>
 
-          {/* Paso 5 */}
+            {/* Paso 5 */}
           <section style={{ display: 'flex', gap: '1.5rem' }}>
             <div style={{ 
               minWidth: '2.5rem', 
@@ -200,6 +200,27 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.6' }}>
                 Regresa a esta aplicación. Asegúrate de estar en la pestaña correcta (<strong style={{ color: '#fff' }}>Entrenamiento</strong> o <strong style={{ color: '#fff' }}>Validación</strong>) 
                 y pega el texto copiado directamente en el cuadro de texto central. ¡Las gráficas se generarán al instante!
+              </p>
+            </div>
+          </section>
+
+          {/* Glosario de Métricas de Error */}
+          <section style={{ 
+            marginTop: '1rem', 
+            padding: '1.5rem', 
+            borderRadius: '1rem', 
+            background: 'rgba(124, 58, 237, 0.05)',
+            border: '1px solid rgba(124, 58, 237, 0.2)'
+          }}>
+            <h4 style={{ color: 'var(--accent-primary)', marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '700' }}>
+              Métricas de Error (RAE y RRSE)
+            </h4>
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0, lineHeight: '1.5' }}>
+                <strong style={{ color: '#fff' }}>RAE (Error Absoluto Relativo):</strong> Compara el error de tu modelo con un predictor trivial (la media). Si es cercano al 0%, tu modelo es excelente.
+              </p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0, lineHeight: '1.5' }}>
+                <strong style={{ color: '#fff' }}>RRSE (Error Cuadrático Relativo):</strong> Similar al RAE pero más estricto con los errores grandes. Ayuda a identificar modelos con fallos críticos.
               </p>
             </div>
           </section>

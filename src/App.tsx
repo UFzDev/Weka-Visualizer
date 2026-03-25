@@ -38,17 +38,17 @@ function App() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions))
   }, [sessions])
 
-  const activeSession = useMemo(() => 
-    sessions.find(s => s.id === activeSessionId) || sessions[0], 
+  const activeSession = useMemo(() =>
+    sessions.find(s => s.id === activeSessionId) || sessions[0],
     [sessions, activeSessionId]
   )
 
-  const trainData = useMemo<WekaParsedData | null>(() => 
-    parseWekaOutput(activeSession.trainText), 
+  const trainData = useMemo<WekaParsedData | null>(() =>
+    parseWekaOutput(activeSession.trainText),
     [activeSession.trainText]
   )
-  const testData = useMemo<WekaParsedData | null>(() => 
-    parseWekaOutput(activeSession.testText), 
+  const testData = useMemo<WekaParsedData | null>(() =>
+    parseWekaOutput(activeSession.testText),
     [activeSession.testText]
   )
 
@@ -63,8 +63,8 @@ function App() {
   }, [trainData?.algorithm, testData?.algorithm, activeSessionId, activeSession.name])
 
   const updateSessionText = (text: string, type: 'train' | 'test') => {
-    setSessions(prev => prev.map(s => 
-      s.id === activeSessionId 
+    setSessions(prev => prev.map(s =>
+      s.id === activeSessionId
         ? { ...s, [type === 'train' ? 'trainText' : 'testText']: text }
         : s
     ))
@@ -93,7 +93,7 @@ function App() {
   }
 
   const renameSession = (id: string, newName: string) => {
-    setSessions(prev => prev.map(s => 
+    setSessions(prev => prev.map(s =>
       s.id === id ? { ...s, name: newName } : s
     ))
   }
@@ -137,12 +137,12 @@ function App() {
 
   const handleExcelReport = async () => {
     setIsExporting(true)
-    // Pasamos el ID activo globalmente para que el motor sepa qué gráfico local capturar
-    ;(window as unknown as { ACTIVE_SESSION_ID_FOR_EXPORT: string }).ACTIVE_SESSION_ID_FOR_EXPORT = activeSessionId
-    
+      // Pasamos el ID activo globalmente para que el motor sepa qué gráfico local capturar
+      ; (window as unknown as { ACTIVE_SESSION_ID_FOR_EXPORT: string }).ACTIVE_SESSION_ID_FOR_EXPORT = activeSessionId
+
     // Pequeño delay para asegurar que los gráficos estén renderizados
     await new Promise(r => setTimeout(r, 500))
-    
+
     try {
       await exportToExcel(sessions)
     } finally {
@@ -162,18 +162,18 @@ function App() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            style={{ display: 'none' }} 
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
             accept=".json"
             onChange={importData}
           />
-          <button 
+          <button
             onClick={() => setIsHelpModalOpen(true)}
-            className="btn-primary flex-center" 
-            style={{ 
-              gap: '0.4rem', 
+            className="btn-primary flex-center"
+            style={{
+              gap: '0.4rem',
               padding: '0.5rem 0.8rem',
               background: 'rgba(124, 58, 237, 0.1)',
               borderColor: 'rgba(124, 58, 237, 0.3)',
@@ -183,30 +183,30 @@ function App() {
             <BookOpen size={14} />
             Cómo usar
           </button>
-          <button 
+          <button
             onClick={() => fileInputRef.current?.click()}
-            className="btn-primary flex-center" 
+            className="btn-primary flex-center"
             style={{ gap: '0.4rem', padding: '0.5rem 0.8rem' }}
             title="Importar de JSON"
           >
             <Upload size={14} />
             Importar
           </button>
-          <button 
+          <button
             onClick={exportData}
-            className="btn-primary flex-center" 
+            className="btn-primary flex-center"
             style={{ gap: '0.4rem', padding: '0.5rem 0.8rem' }}
             title="Exportar a JSON"
           >
             <Download size={14} />
             Exportar
           </button>
-          <button 
+          <button
             onClick={handleExcelReport}
             disabled={isExporting}
-            className="btn-primary flex-center" 
-            style={{ 
-              gap: '0.4rem', 
+            className="btn-primary flex-center"
+            style={{
+              gap: '0.4rem',
               padding: '0.5rem 0.8rem',
               background: 'var(--success)',
               borderColor: 'var(--success)',
@@ -218,11 +218,11 @@ function App() {
             <FileSpreadsheet size={14} />
             {isExporting ? 'Generando...' : 'Reporte Excel'}
           </button>
-          <button 
+          <button
             onClick={() => setIsHelpMode(!isHelpMode)}
-            className={`btn-primary flex-center ${isHelpMode ? 'active' : ''}`} 
-            style={{ 
-              gap: '0.4rem', 
+            className={`btn-primary flex-center ${isHelpMode ? 'active' : ''}`}
+            style={{
+              gap: '0.4rem',
               padding: '0.5rem 0.8rem',
               borderColor: isHelpMode ? 'var(--accent-primary)' : 'var(--border)',
               background: isHelpMode ? 'rgba(37, 99, 235, 0.1)' : 'var(--bg-card)',
@@ -240,26 +240,26 @@ function App() {
 
       {/* Navegación Principal */}
       <div style={{ marginBottom: '2rem', display: 'flex', gap: '0.5rem' }}>
-        <button 
+        <button
           onClick={() => setActiveTab('train')}
           className={`btn-primary ${activeTab === 'train' ? 'active' : ''}`}
         >
           Entrenamiento
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('test')}
           className={`btn-primary ${activeTab === 'test' ? 'active' : ''}`}
         >
           Validación
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('compare')}
           className={`btn-primary ${activeTab === 'compare' ? 'active' : ''}`}
           style={{ fontWeight: 'bold' }}
         >
           Comparativa Local
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('global-compare')}
           className={`btn-primary ${activeTab === 'global-compare' ? 'active' : ''}`}
           style={{ fontWeight: 'bold', background: 'var(--success)', borderColor: 'var(--success)', color: 'white' }}
@@ -271,13 +271,13 @@ function App() {
       {/* Resultados Globales (Algoritmo) */}
       {(trainData || testData) && (
         <div className="glass-card animate-in" style={{ marginBottom: '1.5rem', borderLeft: '4px solid var(--accent-primary)' }}>
-           <div style={{ flex: 1 }}>
-             <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '600' }}>Algoritmo del Modelo</span>
-             <h4 style={{ color: 'var(--text-main)', fontSize: '1.1rem', marginTop: '0.2rem' }}>{trainData?.algorithm || testData?.algorithm}</h4>
-           </div>
-           {trainData && testData && trainData.algorithm !== testData.algorithm && (
-             <div style={{ color: 'var(--error)', fontSize: '0.75rem', fontWeight: 'bold', marginTop: '0.5rem' }}>Advertencia: Los algoritmos no coinciden</div>
-           )}
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '600' }}>Algoritmo del Modelo</span>
+            <h4 style={{ color: 'var(--text-main)', fontSize: '1.1rem', marginTop: '0.2rem' }}>{trainData?.algorithm || testData?.algorithm}</h4>
+          </div>
+          {trainData && testData && trainData.algorithm !== testData.algorithm && (
+            <div style={{ color: 'var(--error)', fontSize: '0.75rem', fontWeight: 'bold', marginTop: '0.5rem' }}>Advertencia: Los algoritmos no coinciden</div>
+          )}
         </div>
       )}
 
@@ -293,8 +293,8 @@ function App() {
               <h3 style={{ color: 'var(--text-main)', marginBottom: '1rem', fontSize: '1rem', fontWeight: '600' }}>
                 {activeTab === 'train' ? 'Output de Entrenamiento' : 'Output de Validación/Test'}
               </h3>
-              <textarea 
-                placeholder={`Pega el output de Weka para ${activeTab === 'train' ? 'entrenamiento' : 'validación'}...`} 
+              <textarea
+                placeholder={`Pega el output de Weka para ${activeTab === 'train' ? 'entrenamiento' : 'validación'}...`}
                 rows={12}
                 value={activeTab === 'train' ? activeSession.trainText : activeSession.testText}
                 onChange={(e) => updateSessionText(e.target.value, activeTab === 'train' ? 'train' : 'test')}
@@ -307,10 +307,10 @@ function App() {
                 <div className="grid-cols-auto" style={{ gap: '1rem' }}>
                   <div className="glass-card" style={{ textAlign: 'center', borderTop: '3px solid var(--success)' }}>
                     <Tooltip text="Porcentaje de instancias clasificadas correctamente por el modelo." disabled={!isHelpMode}>
-                      <span style={{ 
-                        fontSize: '0.7rem', 
-                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)', 
-                        textTransform: 'uppercase', 
+                      <span style={{
+                        fontSize: '0.7rem',
+                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                        textTransform: 'uppercase',
                         fontWeight: '600',
                         cursor: isHelpMode ? 'help' : 'default',
                         borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -322,10 +322,10 @@ function App() {
                   </div>
                   <div className="glass-card" style={{ textAlign: 'center', borderTop: '3px solid var(--accent-primary)' }}>
                     <Tooltip text="Medida de concordancia que descuenta la probabilidad de acierto por azar." disabled={!isHelpMode}>
-                      <span style={{ 
-                        fontSize: '0.7rem', 
-                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)', 
-                        textTransform: 'uppercase', 
+                      <span style={{
+                        fontSize: '0.7rem',
+                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                        textTransform: 'uppercase',
                         fontWeight: '600',
                         cursor: isHelpMode ? 'help' : 'default',
                         borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -340,7 +340,7 @@ function App() {
                 <div className="glass-card">
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
                     <Tooltip text="Raíz del error cuadrático medio; indica la dispersión de los errores de predicción." disabled={!isHelpMode}>
-                      <span style={{ 
+                      <span style={{
                         color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
                         cursor: isHelpMode ? 'help' : 'default',
                         borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -352,7 +352,7 @@ function App() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
                     <Tooltip text="Tiempo total que tardó el algoritmo en entrenar el modelo." disabled={!isHelpMode}>
-                      <span style={{ 
+                      <span style={{
                         color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
                         cursor: isHelpMode ? 'help' : 'default',
                         borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -364,7 +364,7 @@ function App() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                     <Tooltip text="Tiempo total que tardó en evaluar el modelo con los datos de prueba." disabled={!isHelpMode}>
-                      <span style={{ 
+                      <span style={{
                         color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
                         cursor: isHelpMode ? 'help' : 'default',
                         borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -376,7 +376,7 @@ function App() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
                     <Tooltip text="Error absoluto relativo." disabled={!isHelpMode}>
-                      <span style={{ 
+                      <span style={{
                         color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
                         cursor: isHelpMode ? 'help' : 'default',
                         borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -388,7 +388,7 @@ function App() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                     <Tooltip text="Error cuadrático relativo." disabled={!isHelpMode}>
-                      <span style={{ 
+                      <span style={{
                         color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
                         cursor: isHelpMode ? 'help' : 'default',
                         borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -430,7 +430,7 @@ function App() {
       <div className="excel-tabs">
         <div className="excel-tabs-container">
           {sessions.map((session) => (
-            <div 
+            <div
               key={session.id}
               onClick={() => setActiveSessionId(session.id)}
               onDoubleClick={() => {
@@ -440,9 +440,9 @@ function App() {
               className={`excel-tab ${activeSessionId === session.id ? 'active' : ''}`}
             >
               {editingId === session.id ? (
-                <input 
+                <input
                   autoFocus
-                  value={tempName} 
+                  value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
                   onBlur={() => handleRenameSubmit(session.id)}
                   onKeyDown={(e) => {
@@ -456,7 +456,7 @@ function App() {
                 <span className="excel-tab-label">{session.name}</span>
               )}
               {sessions.length > 1 && (
-                <button 
+                <button
                   onClick={(e) => removeSession(session.id, e)}
                   className="excel-tab-close"
                 >
@@ -470,9 +470,9 @@ function App() {
           </button>
         </div>
       </div>
-      <HelpModal 
-        isOpen={isHelpModalOpen} 
-        onClose={() => setIsHelpModalOpen(false)} 
+      <HelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
       />
     </main>
   )

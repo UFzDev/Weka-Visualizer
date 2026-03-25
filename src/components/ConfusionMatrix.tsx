@@ -12,11 +12,11 @@ const ConfusionMatrix: React.FC<ConfusionMatrixProps> = ({ labels, matrix }) => 
     <div className="glass-card animate-in" style={{ padding: '2rem', width: '100%', overflowX: 'auto' }}>
       <div style={{ position: 'relative', width: '100%' }}>
         {/* Label de Eje Superior (Real) */}
-        <div style={{ 
-          textAlign: 'center', 
-          color: 'var(--text-muted)', 
-          fontSize: '0.7rem', 
-          textTransform: 'uppercase', 
+        <div style={{
+          textAlign: 'center',
+          color: 'var(--text-muted)',
+          fontSize: '0.7rem',
+          textTransform: 'uppercase',
           letterSpacing: '0.05em',
           marginBottom: '1rem',
           width: '100%',
@@ -27,22 +27,22 @@ const ConfusionMatrix: React.FC<ConfusionMatrixProps> = ({ labels, matrix }) => 
 
         <div style={{ display: 'flex' }}>
           {/* Label de Eje Lateral (Predicho) */}
-          <div style={{ 
-            writingMode: 'vertical-rl', 
-            transform: 'rotate(180deg)', 
+          <div style={{
+            writingMode: 'vertical-rl',
+            transform: 'rotate(180deg)',
             textAlign: 'center',
-            color: 'var(--text-muted)', 
-            fontSize: '0.7rem', 
-            textTransform: 'uppercase', 
+            color: 'var(--text-muted)',
+            fontSize: '0.7rem',
+            textTransform: 'uppercase',
             letterSpacing: '0.05em',
             paddingRight: '1rem'
           }}>
             — Resultados Predichos —
           </div>
 
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: `140px repeat(${labels.length}, minmax(80px, 1fr))`, 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: `140px repeat(${labels.length}, minmax(80px, 1fr))`,
             gap: '1px',
             background: 'var(--border)',
             width: 'max-content',
@@ -52,15 +52,15 @@ const ConfusionMatrix: React.FC<ConfusionMatrixProps> = ({ labels, matrix }) => 
             <div style={{ background: 'var(--bg-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', color: 'var(--text-muted)' }}>
               PRED \ REAL
             </div>
-            
+
             {/* Headers de Columnas */}
             {labels.map((label, i) => (
-              <div key={i} style={{ 
-                background: 'var(--bg-dark)', 
-                padding: '12px 8px', 
-                textAlign: 'center', 
-                fontSize: '0.75rem', 
-                fontWeight: '600', 
+              <div key={i} style={{
+                background: 'var(--bg-dark)',
+                padding: '12px 8px',
+                textAlign: 'center',
+                fontSize: '0.75rem',
+                fontWeight: '600',
                 color: 'var(--text-muted)',
                 display: 'flex',
                 alignItems: 'center',
@@ -74,11 +74,11 @@ const ConfusionMatrix: React.FC<ConfusionMatrixProps> = ({ labels, matrix }) => 
             {matrix.map((row, i) => (
               <React.Fragment key={i}>
                 {/* Header de Fila */}
-                <div style={{ 
-                  background: 'var(--bg-dark)', 
-                  padding: '12px 16px', 
-                  fontSize: '0.75rem', 
-                  fontWeight: '600', 
+                <div style={{
+                  background: 'var(--bg-dark)',
+                  padding: '12px 16px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
                   color: 'var(--text-main)',
                   display: 'flex',
                   alignItems: 'center',
@@ -87,23 +87,23 @@ const ConfusionMatrix: React.FC<ConfusionMatrixProps> = ({ labels, matrix }) => 
                 }}>
                   {labels[i]}
                 </div>
-                
+
                 {/* Celdas */}
                 {row.map((val, j) => {
                   const intensity = max === 0 ? 0 : val / max;
                   const isDiagonal = i === j;
-                  
-                  const bgColor = isDiagonal 
+
+                  const bgColor = isDiagonal
                     ? `rgba(37, 99, 235, ${0.05 + intensity * 0.95})`
                     : val > 0 ? `rgba(220, 38, 38, ${0.05 + intensity * 0.4})` : 'var(--bg-card)';
-                  
+
                   const textColor = (isDiagonal && intensity > 0.5) ? 'white' : 'var(--text-main)';
 
                   return (
-                    <div 
-                      key={j} 
+                    <div
+                      key={j}
                       className="flex-center"
-                      style={{ 
+                      style={{
                         background: bgColor,
                         color: textColor,
                         height: '60px',

@@ -31,12 +31,12 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode
 
   const metrics = [
     { name: 'Precisión Global (%)', train: train?.summary.correctlyClassified || 0, test: test?.summary.correctlyClassified || 0, max: 100 },
-    { name: 'Índice Kappa', train: (train?.summary.kappa || 0) * 100, test: (test?.summary.kappa || 0) * 100, max: 100, label: (v: number) => (v/100).toFixed(3) },
-    { name: 'Error Cuadrático (RMSE)', train: (train?.summary.rmse || 0) * 100, test: (test?.summary.rmse || 0) * 100, max: 100, isInverse: true, label: (v: number) => (v/100).toFixed(4) },
+    { name: 'Índice Kappa', train: (train?.summary.kappa || 0) * 100, test: (test?.summary.kappa || 0) * 100, max: 100, label: (v: number) => (v / 100).toFixed(3) },
+    { name: 'Error Cuadrático (RMSE)', train: (train?.summary.rmse || 0) * 100, test: (test?.summary.rmse || 0) * 100, max: 100, isInverse: true, label: (v: number) => (v / 100).toFixed(4) },
     { name: 'Error Absoluto Relativo (RAE)', train: train?.summary.rae || 0, test: test?.summary.rae || 0, max: 100, isInverse: true, label: (v: number) => `${v.toFixed(2)}%` },
     { name: 'Error Cuadrático Relativo (RRSE)', train: train?.summary.rrse || 0, test: test?.summary.rrse || 0, max: 100, isInverse: true, label: (v: number) => `${v.toFixed(2)}%` },
-    { name: 'Tiempo Construcción (s)', train: (train?.buildTime || 0) * 100, test: (test?.buildTime || 0) * 100, max: 500, label: (v: number) => (v/100).toFixed(3) },
-    { name: 'Tiempo Validación (s)', train: (test?.testTime || 0) * 100, test: (test?.testTime || 0) * 100, max: 500, label: (v: number) => (v/100).toFixed(3) },
+    { name: 'Tiempo Construcción (s)', train: (train?.buildTime || 0) * 100, test: (test?.buildTime || 0) * 100, max: 500, label: (v: number) => (v / 100).toFixed(3) },
+    { name: 'Tiempo Validación (s)', train: (test?.testTime || 0) * 100, test: (test?.testTime || 0) * 100, max: 500, label: (v: number) => (v / 100).toFixed(3) },
   ];
 
   return (
@@ -46,11 +46,11 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode
           <div key={m.name} className="glass-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
               <Tooltip text={metricDefinitions[m.name] || ""} disabled={!isHelpMode}>
-                <h4 style={{ 
-                  color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)', 
-                  textTransform: 'uppercase', 
-                  fontSize: '0.7rem', 
-                  fontWeight: '600', 
+                <h4 style={{
+                  color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                  textTransform: 'uppercase',
+                  fontSize: '0.7rem',
+                  fontWeight: '600',
                   margin: 0,
                   cursor: isHelpMode ? 'help' : 'default',
                   borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -60,7 +60,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode
               </Tooltip>
               {isHelpMode && <HelpCircle size={14} style={{ color: 'var(--accent-primary)', opacity: 0.7 }} />}
             </div>
-            
+
             <div style={{ marginBottom: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem', fontSize: '0.8rem' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Entrenamiento</span>
@@ -84,9 +84,9 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode
             {/* Gap Analysis */}
             <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--text-muted)' }}>Diferencia Absoluta: </span>
-              <span style={{ 
-                color: Math.abs(m.train - m.test) > 10 ? 'var(--error)' : 'var(--success)', 
-                fontWeight: '700' 
+              <span style={{
+                color: Math.abs(m.train - m.test) > 10 ? 'var(--error)' : 'var(--success)',
+                fontWeight: '700'
               }}>
                 {(m.test - m.train).toFixed(2)}{m.name.includes('%') ? '%' : ''}
               </span>
@@ -105,10 +105,10 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode
         <div id="local-metrics-chart" className="glass-card" style={{ marginTop: '2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <Tooltip text={metricDefinitions['Medida F por Clase (Comparativa)']} disabled={!isHelpMode}>
-              <h3 style={{ 
-                color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)', 
-                fontSize: '1rem', 
-                fontWeight: '600', 
+              <h3 style={{
+                color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-main)',
+                fontSize: '1rem',
+                fontWeight: '600',
                 margin: 0,
                 cursor: isHelpMode ? 'help' : 'default',
                 borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
@@ -120,11 +120,11 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {train.detailedAccuracy.map((tm, i) => {
-              const testM = test.detailedAccuracy.find(m => m.className.trim() === tm.className.trim()) 
-                          || test.detailedAccuracy[i];
-              
+              const testM = test.detailedAccuracy.find(m => m.className.trim() === tm.className.trim())
+                || test.detailedAccuracy[i];
+
               if (!testM) return null;
-              
+
               const trainVal = tm.fMeasure || 0;
               const testVal = testM.fMeasure || 0;
 

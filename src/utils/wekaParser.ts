@@ -112,7 +112,7 @@ export const parseWekaOutput = (text: string): WekaParsedData | null => {
           // Buscamos el índice de la clase dinámicamente o asumimos que es el último
           // En Weka standard, las métricas son TP, FP, Precision, Recall, F-Measure, MCC, ROC, PRC
           // La clase siempre es la última parte (o partes si tiene espacios)
-          
+
           detailedAccuracy.push({
             tpRate: parseVal(parts[0]),
             fpRate: parseVal(parts[1]),
@@ -131,7 +131,7 @@ export const parseWekaOutput = (text: string): WekaParsedData | null => {
 
     // 4. Parse Confusion Matrix
     let confusionMatrix: { labels: string[]; matrix: number[][] } = { labels: [], matrix: [] };
-    
+
     // Buscamos la sección de la matriz de confusión de forma más flexible
     const confusionSectionRegex = /=== Confusion Matrix ===\s*([\s\S]*?)(?:\n\s*\n\s*\D|===|$)/i;
     const sectionMatch = text.match(confusionSectionRegex);
@@ -139,10 +139,10 @@ export const parseWekaOutput = (text: string): WekaParsedData | null => {
     if (sectionMatch) {
       const sectionContent = sectionMatch[1].trim();
       const lines = sectionContent.split("\n").map(l => l.trim()).filter(l => l.length > 0);
-      
+
       // Encontrar la línea del header (la que tiene <-- classified as)
       const headerIndex = lines.findIndex(l => l.includes("<-- classified as"));
-      
+
       if (headerIndex !== -1) {
         const dataLines = lines.slice(headerIndex + 1);
         const matrix: number[][] = [];
@@ -162,7 +162,7 @@ export const parseWekaOutput = (text: string): WekaParsedData | null => {
             }
           }
         });
-        
+
         if (matrix.length > 0) {
           confusionMatrix = { labels, matrix };
         }
