@@ -17,6 +17,9 @@ const metricDefinitions: Record<string, string> = {
   'Error Absoluto Relativo (RAE)': 'Compara el error del modelo con un modelo simple que solo predice la media. Un valor bajo (cercano al 0%) indica un gran desempeño frente a lo básico.',
   'Error Cuadrático Relativo (RRSE)': 'Similar al RAE pero penaliza más los errores grandes. Es vital para asegurar que el modelo no tenga fallos catastróficos.',
   'Área ROC Promedio': 'Mide la capacidad del modelo para distinguir entre clases. Un valor de 1.0 es perfecto, mientras que 0.5 indica un modelo que predice al azar.',
+  'Área PRC Promedio': 'Mide la calidad de la precisión y exhaustividad, especialmente vital cuando hay desbalance entre clases.',
+  'Coef. Matthews (MCC)': 'La medida más confiable de calidad para clasificación binaria y multi-clase, oscila entre -1 y +1.',
+  'Medida F (F-Measure)': 'Un balance (media armónica) entre Precisión y Exhaustividad. Ideal para evaluar la solidez general del modelo.',
   'Tiempo Construcción (s)': 'Es el tiempo que el algoritmo dedicó a "estudiar" los datos para generar el cerebro (modelo) que realizará las predicciones matemáticas.',
   'Tiempo Validación (s)': 'Es el tiempo que tardó el modelo ya entrenado en procesar y evaluar los datos de prueba o validación.',
   'Medida F por Clase (Comparativa)': 'Un equilibrio entre precisión y exhaustividad por cada categoría. Es la mejor forma de saber si el modelo es realmente bueno en una clase específica sin sesgos.'
@@ -32,76 +35,85 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode
   }
 
   const metrics = [
-    { name: 'Precisión Global (%)', train: train?.summary.correctlyClassified || 0, test: test?.summary.correctlyClassified || 0, max: 100 },
-    { name: 'Índice Kappa', train: (train?.summary.kappa || 0) * 100, test: (test?.summary.kappa || 0) * 100, max: 100, label: (v: number) => (v / 100).toFixed(3) },
-    { name: 'Error Absoluto (MAE)', train: (train?.summary.mae || 0) * 100, test: (test?.summary.mae || 0) * 100, max: 100, isInverse: true, label: (v: number) => (v / 100).toFixed(4) },
-    { name: 'Error Cuadrático (RMSE)', train: (train?.summary.rmse || 0) * 100, test: (test?.summary.rmse || 0) * 100, max: 100, isInverse: true, label: (v: number) => (v / 100).toFixed(4) },
-    { name: 'Error Absoluto Relativo (RAE)', train: train?.summary.rae || 0, test: test?.summary.rae || 0, max: 100, isInverse: true, label: (v: number) => `${v.toFixed(2)}%` },
-    { name: 'Error Cuadrático Relativo (RRSE)', train: train?.summary.rrse || 0, test: test?.summary.rrse || 0, max: 100, isInverse: true, label: (v: number) => `${v.toFixed(2)}%` },
-    { name: 'Área ROC Promedio', train: (train?.weightedAvg?.rocArea || 0) * 100, test: (test?.weightedAvg?.rocArea || 0) * 100, max: 100, label: (v: number) => (v / 100).toFixed(3) },
-    { name: 'Tiempo Construcción (s)', train: (train?.buildTime || 0) * 100, test: (test?.buildTime || 0) * 100, max: 500, label: (v: number) => (v / 100).toFixed(3) },
-    { name: 'Tiempo Validación (s)', train: (train?.testTime || 0) * 100, test: (test?.testTime || 0) * 100, max: 500, label: (v: number) => (v / 100).toFixed(3) },
+    { name: 'Precisión Global (%)', train: train?.summary.correctlyClassified || 0, test: test?.summary.correctlyClassified || 0, max: 100, threshold: 5 },
+    { name: 'Índice Kappa', train: train?.summary.kappa || 0, test: test?.summary.kappa || 0, max: 1, threshold: 0.05, label: (v: number) => v.toFixed(3) },
+    { name: 'Error Absoluto (MAE)', train: train?.summary.mae || 0, test: test?.summary.mae || 0, max: 1, isInverse: true, threshold: 0.02, label: (v: number) => v.toFixed(4) },
+    { name: 'Error Cuadrático (RMSE)', train: train?.summary.rmse || 0, test: test?.summary.rmse || 0, max: 1, isInverse: true, threshold: 0.02, label: (v: number) => v.toFixed(4) },
+    { name: 'Error Absoluto Relativo (RAE)', train: train?.summary.rae || 0, test: test?.summary.rae || 0, max: 100, isInverse: true, threshold: 15, label: (v: number) => `${v.toFixed(2)}%` },
+    { name: 'Error Cuadrático Relativo (RRSE)', train: train?.summary.rrse || 0, test: test?.summary.rrse || 0, max: 100, isInverse: true, threshold: 15, label: (v: number) => `${v.toFixed(2)}%` },
+    { name: 'Área ROC Promedio', train: train?.weightedAvg?.rocArea || 0, test: test?.weightedAvg?.rocArea || 0, max: 1, threshold: 0.05, label: (v: number) => v.toFixed(3) },
+    { name: 'Área PRC Promedio', train: train?.weightedAvg?.prcArea || 0, test: test?.weightedAvg?.prcArea || 0, max: 1, threshold: 0.05, label: (v: number) => v.toFixed(3) },
+    { name: 'Coef. Matthews (MCC)', train: train?.weightedAvg?.mcc || 0, test: test?.weightedAvg?.mcc || 0, max: 1, threshold: 0.05, label: (v: number) => v.toFixed(3) },
+    { name: 'Medida F (F-Measure)', train: train?.weightedAvg?.fMeasure || 0, test: test?.weightedAvg?.fMeasure || 0, max: 1, threshold: 0.05, label: (v: number) => v.toFixed(3) },
+    { name: 'Tiempo Construcción (s)', train: train?.buildTime || 0, test: test?.buildTime || 0, max: (train?.buildTime || 1) * 2, threshold: 1.0, label: (v: number) => `${v.toFixed(3)}s` },
+    { name: 'Tiempo Validación (s)', train: train?.testTime || 0, test: test?.testTime || 0, max: (train?.testTime || 1) * 2, threshold: 1.0, label: (v: number) => `${v.toFixed(3)}s` },
   ];
 
   return (
     <div className="animate-in">
       <div className="grid-cols-auto" style={{ gap: '1.5rem' }}>
-        {metrics.map(m => (
-          <div key={m.name} className="glass-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
-              <Tooltip text={metricDefinitions[m.name] || ""} disabled={!isHelpMode}>
-                <h4 style={{
-                  color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
-                  textTransform: 'uppercase',
-                  fontSize: '0.7rem',
-                  fontWeight: '600',
-                  margin: 0,
-                  cursor: isHelpMode ? 'help' : 'default',
-                  borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+        {metrics.map(m => {
+          const diff = m.test - m.train;
+          const isBadChange = m.isInverse ? diff > m.threshold : diff < -m.threshold;
+          const isGoodChange = m.isInverse ? diff < -m.threshold : diff > m.threshold;
+          
+          return (
+            <div key={m.name} className="glass-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+                <Tooltip text={metricDefinitions[m.name] || ""} disabled={!isHelpMode}>
+                  <h4 style={{
+                    color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                    textTransform: 'uppercase',
+                    fontSize: '0.7rem',
+                    fontWeight: '600',
+                    margin: 0,
+                    cursor: isHelpMode ? 'help' : 'default',
+                    borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                  }}>
+                    {m.name}
+                  </h4>
+                </Tooltip>
+                {isHelpMode && <HelpCircle size={14} style={{ color: 'var(--accent-primary)', opacity: 0.7 }} />}
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem', fontSize: '0.8rem' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Entrenamiento</span>
+                  <span style={{ fontWeight: '700', color: 'var(--text-main)' }}>{m.label ? m.label(m.train) : m.train.toFixed(2)}</span>
+                </div>
+                <div style={{ width: '100%', height: '4px', background: 'var(--bg-dark)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.min((m.train / m.max) * 100, 100)}%`, height: '100%', background: 'var(--text-muted)' }}></div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem', fontSize: '0.8rem' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Validación</span>
+                  <span style={{ fontWeight: '700', color: 'var(--accent-primary)' }}>{m.label ? m.label(m.test) : m.test.toFixed(2)}</span>
+                </div>
+                <div style={{ width: '100%', height: '4px', background: 'var(--bg-dark)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.min((m.test / m.max) * 100, 100)}%`, height: '100%', background: 'var(--accent-primary)' }}></div>
+                </div>
+              </div>
+
+              {/* Gap Analysis */}
+              <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Diferencia: </span>
+                <span style={{
+                  color: isBadChange ? 'var(--error)' : isGoodChange ? 'var(--success)' : 'var(--text-main)',
+                  fontWeight: '700'
                 }}>
-                  {m.name}
-                </h4>
-              </Tooltip>
-              {isHelpMode && <HelpCircle size={14} style={{ color: 'var(--accent-primary)', opacity: 0.7 }} />}
+                  {diff > 0 ? '+' : ''}{m.label ? m.label(diff) : diff.toFixed(2)}
+                </span>
+              </div>
+              {m.train - m.test > 15 && m.name.includes('Precisión') && (
+                <div style={{ marginTop: '0.5rem', color: 'var(--error)', fontSize: '0.7rem', fontWeight: 'bold', textAlign: 'right' }}>
+                  Alerta: Posible Overfitting
+                </div>
+              )}
             </div>
-
-            <div style={{ marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem', fontSize: '0.8rem' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Entrenamiento</span>
-                <span style={{ fontWeight: '700', color: 'var(--text-main)' }}>{m.label ? m.label(m.train) : m.train.toFixed(2)}</span>
-              </div>
-              <div style={{ width: '100%', height: '4px', background: 'var(--bg-dark)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ width: `${Math.min((m.train / m.max) * 100, 100)}%`, height: '100%', background: 'var(--text-muted)' }}></div>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '1.25rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem', fontSize: '0.8rem' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Validación</span>
-                <span style={{ fontWeight: '700', color: 'var(--accent-primary)' }}>{m.label ? m.label(m.test) : m.test.toFixed(2)}</span>
-              </div>
-              <div style={{ width: '100%', height: '4px', background: 'var(--bg-dark)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ width: `${Math.min((m.test / m.max) * 100, 100)}%`, height: '100%', background: 'var(--accent-primary)' }}></div>
-              </div>
-            </div>
-
-            {/* Gap Analysis */}
-            <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--text-muted)' }}>Diferencia Absoluta: </span>
-              <span style={{
-                color: Math.abs(m.train - m.test) > 10 ? 'var(--error)' : 'var(--success)',
-                fontWeight: '700'
-              }}>
-                {(m.test - m.train).toFixed(2)}{m.name.includes('%') ? '%' : ''}
-              </span>
-            </div>
-            {m.train - m.test > 15 && m.name.includes('Precisión') && (
-              <div style={{ marginTop: '0.5rem', color: 'var(--error)', fontSize: '0.7rem', fontWeight: 'bold', textAlign: 'right' }}>
-                Alerta: Posible Overfitting
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
 
