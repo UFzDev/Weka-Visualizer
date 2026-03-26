@@ -269,7 +269,7 @@ function App() {
       </div>
 
       {/* Resultados Globales (Algoritmo) */}
-      {(trainData || testData) && (
+      {(trainData || testData) && activeTab !== 'global-compare' && (
         <div className="glass-card animate-in" style={{ marginBottom: '1.5rem', borderLeft: '4px solid var(--accent-primary)' }}>
           <div style={{ flex: 1 }}>
             <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '600' }}>Algoritmo del Modelo</span>
@@ -338,65 +338,93 @@ function App() {
                 </div>
 
                 <div className="glass-card">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
-                    <Tooltip text="Raíz del error cuadrático medio; indica la dispersión de los errores de predicción." disabled={!isHelpMode}>
-                      <span style={{
-                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
-                        cursor: isHelpMode ? 'help' : 'default',
-                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
-                      }}>
-                        RMSE:
-                      </span>
-                    </Tooltip>
-                    <span style={{ fontWeight: '600' }}>{currentData.summary.rmse}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
-                    <Tooltip text="Tiempo total que tardó el algoritmo en entrenar el modelo." disabled={!isHelpMode}>
-                      <span style={{
-                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
-                        cursor: isHelpMode ? 'help' : 'default',
-                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
-                      }}>
-                        Tiempo Compilación:
-                      </span>
-                    </Tooltip>
-                    <span style={{ fontWeight: '600' }}>{currentData.buildTime}s</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                    <Tooltip text="Tiempo total que tardó en evaluar el modelo con los datos de prueba." disabled={!isHelpMode}>
-                      <span style={{
-                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
-                        cursor: isHelpMode ? 'help' : 'default',
-                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
-                      }}>
-                        Tiempo Evaluación:
-                      </span>
-                    </Tooltip>
-                    <span style={{ fontWeight: '600' }}>{currentData.testTime}s</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
-                    <Tooltip text="Error absoluto relativo." disabled={!isHelpMode}>
-                      <span style={{
-                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
-                        cursor: isHelpMode ? 'help' : 'default',
-                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
-                      }}>
-                        RAE:
-                      </span>
-                    </Tooltip>
-                    <span style={{ fontWeight: '600' }}>{currentData.summary.rae}%</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                    <Tooltip text="Error cuadrático relativo." disabled={!isHelpMode}>
-                      <span style={{
-                        color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
-                        cursor: isHelpMode ? 'help' : 'default',
-                        borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
-                      }}>
-                        RRSE:
-                      </span>
-                    </Tooltip>
-                    <span style={{ fontWeight: '600' }}>{currentData.summary.rrse}%</span>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'x 1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
+                      <Tooltip text="Promedio del error absoluto." disabled={!isHelpMode}>
+                        <span style={{
+                          color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                          cursor: isHelpMode ? 'help' : 'default',
+                          borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                        }}>
+                          MAE:
+                        </span>
+                      </Tooltip>
+                      <span style={{ fontWeight: '600' }}>{currentData.summary.mae}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
+                      <Tooltip text="Raíz del error cuadrático medio." disabled={!isHelpMode}>
+                        <span style={{
+                          color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                          cursor: isHelpMode ? 'help' : 'default',
+                          borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                        }}>
+                          RMSE:
+                        </span>
+                      </Tooltip>
+                      <span style={{ fontWeight: '600' }}>{currentData.summary.rmse}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
+                      <Tooltip text="Error absoluto relativo." disabled={!isHelpMode}>
+                        <span style={{
+                          color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                          cursor: isHelpMode ? 'help' : 'default',
+                          borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                        }}>
+                          RAE:
+                        </span>
+                      </Tooltip>
+                      <span style={{ fontWeight: '600' }}>{currentData.summary.rae}%</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
+                      <Tooltip text="Error cuadrático relativo." disabled={!isHelpMode}>
+                        <span style={{
+                          color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                          cursor: isHelpMode ? 'help' : 'default',
+                          borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                        }}>
+                          RRSE:
+                        </span>
+                      </Tooltip>
+                      <span style={{ fontWeight: '600' }}>{currentData.summary.rrse}%</span>
+                    </div>
+                    {currentData.weightedAvg && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem', gridColumn: 'span 2' }}>
+                        <Tooltip text="Área ROC Promedio Ponderado." disabled={!isHelpMode}>
+                          <span style={{
+                            color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                            cursor: isHelpMode ? 'help' : 'default',
+                            borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                          }}>
+                            Área ROC Promedio:
+                          </span>
+                        </Tooltip>
+                        <span style={{ fontWeight: '600' }}>{currentData.weightedAvg.rocArea}</span>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                      <Tooltip text="Tiempo de entrenamiento." disabled={!isHelpMode}>
+                        <span style={{
+                          color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                          cursor: isHelpMode ? 'help' : 'default',
+                          borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                        }}>
+                          T. Compilación:
+                        </span>
+                      </Tooltip>
+                      <span style={{ fontWeight: '600' }}>{currentData.buildTime}s</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                      <Tooltip text="Tiempo de evaluación." disabled={!isHelpMode}>
+                        <span style={{
+                          color: isHelpMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                          cursor: isHelpMode ? 'help' : 'default',
+                          borderBottom: isHelpMode ? '1px dashed var(--accent-primary)' : 'none'
+                        }}>
+                          T. Evaluación:
+                        </span>
+                      </Tooltip>
+                      <span style={{ fontWeight: '600' }}>{currentData.testTime}s</span>
+                    </div>
                   </div>
                 </div>
               </section>

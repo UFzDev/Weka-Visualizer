@@ -12,9 +12,11 @@ interface ComparisonViewProps {
 const metricDefinitions: Record<string, string> = {
   'Precisión Global (%)': 'Muestra el porcentaje total de aciertos del modelo. Por ejemplo, un 95% significa que el modelo acertó en 95 de cada 100 casos presentados.',
   'Índice Kappa': 'Mide la calidad de la clasificación comparándola con el azar. Un valor de 1.0 es una predicción perfecta, mientras que 0 indica que el modelo no es mejor que una adivinanza aleatoria.',
+  'Error Absoluto (MAE)': 'Promedio de la diferencia absoluta entre las predicciones y los valores reales. Es una medida robusta que indica la magnitud del error sin penalizar excesivamente los valores atípicos.',
   'Error Cuadrático (RMSE)': 'Indica cuánto se alejan las predicciones de los valores reales. Mientras más bajo sea este número, más preciso es el modelo en sus estimaciones numéricas.',
   'Error Absoluto Relativo (RAE)': 'Compara el error del modelo con un modelo simple que solo predice la media. Un valor bajo (cercano al 0%) indica un gran desempeño frente a lo básico.',
   'Error Cuadrático Relativo (RRSE)': 'Similar al RAE pero penaliza más los errores grandes. Es vital para asegurar que el modelo no tenga fallos catastróficos.',
+  'Área ROC Promedio': 'Mide la capacidad del modelo para distinguir entre clases. Un valor de 1.0 es perfecto, mientras que 0.5 indica un modelo que predice al azar.',
   'Tiempo Construcción (s)': 'Es el tiempo que el algoritmo dedicó a "estudiar" los datos para generar el cerebro (modelo) que realizará las predicciones matemáticas.',
   'Tiempo Validación (s)': 'Es el tiempo que tardó el modelo ya entrenado en procesar y evaluar los datos de prueba o validación.',
   'Medida F por Clase (Comparativa)': 'Un equilibrio entre precisión y exhaustividad por cada categoría. Es la mejor forma de saber si el modelo es realmente bueno en una clase específica sin sesgos.'
@@ -32,11 +34,13 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode
   const metrics = [
     { name: 'Precisión Global (%)', train: train?.summary.correctlyClassified || 0, test: test?.summary.correctlyClassified || 0, max: 100 },
     { name: 'Índice Kappa', train: (train?.summary.kappa || 0) * 100, test: (test?.summary.kappa || 0) * 100, max: 100, label: (v: number) => (v / 100).toFixed(3) },
+    { name: 'Error Absoluto (MAE)', train: (train?.summary.mae || 0) * 100, test: (test?.summary.mae || 0) * 100, max: 100, isInverse: true, label: (v: number) => (v / 100).toFixed(4) },
     { name: 'Error Cuadrático (RMSE)', train: (train?.summary.rmse || 0) * 100, test: (test?.summary.rmse || 0) * 100, max: 100, isInverse: true, label: (v: number) => (v / 100).toFixed(4) },
     { name: 'Error Absoluto Relativo (RAE)', train: train?.summary.rae || 0, test: test?.summary.rae || 0, max: 100, isInverse: true, label: (v: number) => `${v.toFixed(2)}%` },
     { name: 'Error Cuadrático Relativo (RRSE)', train: train?.summary.rrse || 0, test: test?.summary.rrse || 0, max: 100, isInverse: true, label: (v: number) => `${v.toFixed(2)}%` },
+    { name: 'Área ROC Promedio', train: (train?.weightedAvg?.rocArea || 0) * 100, test: (test?.weightedAvg?.rocArea || 0) * 100, max: 100, label: (v: number) => (v / 100).toFixed(3) },
     { name: 'Tiempo Construcción (s)', train: (train?.buildTime || 0) * 100, test: (test?.buildTime || 0) * 100, max: 500, label: (v: number) => (v / 100).toFixed(3) },
-    { name: 'Tiempo Validación (s)', train: (test?.testTime || 0) * 100, test: (test?.testTime || 0) * 100, max: 500, label: (v: number) => (v / 100).toFixed(3) },
+    { name: 'Tiempo Validación (s)', train: (train?.testTime || 0) * 100, test: (test?.testTime || 0) * 100, max: 500, label: (v: number) => (v / 100).toFixed(3) },
   ];
 
   return (
@@ -99,6 +103,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode
           </div>
         ))}
       </div>
+
 
       {/* Comparison by Class (F-Measure) */}
       {train?.detailedAccuracy && test?.detailedAccuracy && (
