@@ -97,20 +97,15 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode
               </div>
 
               {/* Gap Analysis */}
-              <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Diferencia: </span>
                 <span style={{
-                  color: isBadChange ? 'var(--error)' : isGoodChange ? 'var(--success)' : 'var(--text-main)',
+                  color: 'var(--text-main)',
                   fontWeight: '700'
                 }}>
-                  {diff > 0 ? '+' : ''}{m.label ? m.label(diff) : diff.toFixed(2)}
+                  {m.label ? m.label(Math.abs(diff)) : Math.abs(diff).toFixed(2)}
                 </span>
               </div>
-              {m.train - m.test > 15 && m.name.includes('Precisión') && (
-                <div style={{ marginTop: '0.5rem', color: 'var(--error)', fontSize: '0.7rem', fontWeight: 'bold', textAlign: 'right' }}>
-                  Alerta: Posible Overfitting
-                </div>
-              )}
             </div>
           );
         })}
