@@ -60,8 +60,10 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
         mccTest: d.test?.weightedAvg?.mcc || 0,
         fMeasureTrain: d.train?.weightedAvg?.fMeasure || 0,
         fMeasureTest: d.test?.weightedAvg?.fMeasure || 0,
-        buildTime: d.train?.buildTime || 0,
-        testTime: d.test?.testTime || 0,
+        buildTimeTrain: d.train?.buildTime || 0,
+        buildTimeTest: d.test?.buildTime || 0,
+        testTimeTrain: d.train?.testTime || 0,
+        testTimeTest: d.test?.testTime || 0,
       }))
   }, [comparisonData])
 
@@ -134,6 +136,8 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
   }
 
   const StandardChart = ({ id, name, data, dataKeyTrain, dataKeyTest, colorTrain = "var(--accent-primary)", domain }: any) => {
+    const showTestBar = dataKeyTest && dataKeyTest !== dataKeyTrain;
+    
     return (
       <div id={id} className="glass-card" style={{ padding: '1rem', borderTop: `2px solid ${colorTrain}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
@@ -165,9 +169,11 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
               <Bar dataKey={dataKeyTrain} name="Entrenamiento" radius={[2, 2, 0, 0]}>
                 {data.map((_: any, index: number) => <Cell key={`c1-${index}`} fill={colorTrain} fillOpacity={0.8} />)}
               </Bar>
-              <Bar dataKey={dataKeyTest} name="Validación" radius={[2, 2, 0, 0]}>
-                {data.map((_: any, index: number) => <Cell key={`c2-${index}`} fill={colorTrain} fillOpacity={0.3} />)}
-              </Bar>
+              {showTestBar && (
+                <Bar dataKey={dataKeyTest} name="Validación" radius={[2, 2, 0, 0]}>
+                  {data.map((_: any, index: number) => <Cell key={`c2-${index}`} fill={colorTrain} fillOpacity={0.3} />)}
+                </Bar>
+              )}
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -241,8 +247,8 @@ export default function GlobalComparisonView({ sessions, isHelpMode }: GlobalCom
           </div>
 
           <StandardChart id="g-fmeas" name="Medida F (F-Measure)" data={chartData} dataKeyTrain="fMeasureTrain" dataKeyTest="fMeasureTest" colorTrain="#d946ef" domain={[0, 1]} />
-          <StandardChart id="g-build" name="Tiempo Construcción (s)" data={chartData} dataKeyTrain="buildTime" dataKeyTest="buildTime" colorTrain="#64748b" />
-          <StandardChart id="g-val" name="Tiempo Validación (s)" data={chartData} dataKeyTrain="testTime" dataKeyTest="testTime" colorTrain="#475569" />
+          <StandardChart id="g-build" name="Tiempo Construcción (s)" data={chartData} dataKeyTrain="buildTimeTrain" dataKeyTest="buildTimeTest" colorTrain="#64748b" />
+          <StandardChart id="g-val" name="Tiempo Validación (s)" data={chartData} dataKeyTrain="testTimeTrain" dataKeyTest="testTimeTest" colorTrain="#475569" />
         </div>
 
         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2rem', textAlign: 'center', opacity: 0.6 }}>
