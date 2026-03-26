@@ -54,9 +54,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ train, test, isHelpMode
       <div className="grid-cols-auto" style={{ gap: '1.5rem' }}>
         {metrics.map(m => {
           const diff = m.test - m.train;
-          const isBadChange = m.isInverse ? diff > m.threshold : diff < -m.threshold;
-          const isGoodChange = m.isInverse ? diff < -m.threshold : diff > m.threshold;
-          
+
           return (
             <div key={m.name} className="glass-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
